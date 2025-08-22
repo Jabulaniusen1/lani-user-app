@@ -3,7 +3,8 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, Switch } from 'react-n
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
+import StyledText from '@/components/StyledText';
 
 export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
@@ -87,12 +88,16 @@ export default function ProfileScreen() {
           size={24} 
           color={item.isDestructive ? '#FF3B30' : '#666'} 
         />
-        <Text style={[
-          styles.menuItemTitle,
-          item.isDestructive && styles.menuItemTitleDestructive
-        ]}>
+        <StyledText 
+          variant="body" 
+          weight="medium"
+          style={[
+            styles.menuItemTitle,
+            item.isDestructive && styles.menuItemTitleDestructive
+          ]}
+        >
           {item.title}
-        </Text>
+        </StyledText>
       </View>
       
       {item.isSwitch ? (
@@ -112,7 +117,9 @@ export default function ProfileScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <StyledText variant="title" weight="bold" style={styles.headerTitle}>
+          Profile
+        </StyledText>
       </View>
 
       {/* Profile Section */}
@@ -122,9 +129,15 @@ export default function ProfileScreen() {
           style={styles.profileImage} 
         />
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>Annie Johnson</Text>
-          <Text style={styles.profileEmail}>annie.johnson@email.com</Text>
-          <Text style={styles.profilePhone}>+234 801 234 5678</Text>
+          <StyledText variant="title" weight="bold" style={styles.profileName}>
+            Annie Johnson
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.profileEmail}>
+            annie.johnson@email.com
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.profilePhone}>
+            +234 801 234 5678
+          </StyledText>
         </View>
         <TouchableOpacity style={styles.editProfileButton}>
           <Ionicons name="create-outline" size={20} color="#FF6B35" />
@@ -134,18 +147,30 @@ export default function ProfileScreen() {
       {/* Stats Section */}
       <View style={styles.statsSection}>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>24</Text>
-          <Text style={styles.statLabel}>Orders</Text>
+          <StyledText variant="subtitle" weight="bold" style={styles.statNumber}>
+            24
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.statLabel}>
+            Orders
+          </StyledText>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>8</Text>
-          <Text style={styles.statLabel}>Favorites</Text>
+          <StyledText variant="subtitle" weight="bold" style={styles.statNumber}>
+            8
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.statLabel}>
+            Favorites
+          </StyledText>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>₦45,200</Text>
-          <Text style={styles.statLabel}>Total Spent</Text>
+          <StyledText variant="subtitle" weight="bold" style={styles.statNumber}>
+            ₦45,200
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.statLabel}>
+            Total Spent
+          </StyledText>
         </View>
       </View>
 
@@ -163,7 +188,9 @@ export default function ProfileScreen() {
 
       {/* App Version */}
       <View style={styles.versionSection}>
-        <Text style={styles.versionText}>Lani Eats v1.0.0</Text>
+        <StyledText variant="caption" weight="regular" style={styles.versionText}>
+          Lani Eats v1.0.0
+        </StyledText>
       </View>
     </ScrollView>
   );
@@ -172,92 +199,91 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
     backgroundColor: '#FFFFFF',
   },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
   profileSection: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 20,
+    marginRight: 16,
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   profileEmail: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   profilePhone: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
   },
   editProfileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   statsSection: {
-    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
-    paddingVertical: 24,
-    marginBottom: 20,
+    backgroundColor: '#F8F8F8',
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
   },
   statDivider: {
     width: 1,
     backgroundColor: '#E0E0E0',
+    marginHorizontal: 8,
   },
   menuSection: {
-    backgroundColor: '#FFFFFF',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    marginBottom: 24,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
     paddingVertical: 16,
   },
   menuItemLeft: {
@@ -265,10 +291,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuItemTitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#1A1A1A',
-    marginLeft: 16,
-    fontWeight: '500',
+    marginLeft: 12,
   },
   menuItemTitleDestructive: {
     color: '#FF3B30',
@@ -276,14 +301,14 @@ const styles = StyleSheet.create({
   menuDivider: {
     height: 1,
     backgroundColor: '#F0F0F0',
-    marginLeft: 60,
+    marginLeft: 48,
   },
   versionSection: {
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingBottom: 20,
   },
   versionText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#999',
   },
 });

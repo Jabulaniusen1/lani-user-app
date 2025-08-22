@@ -3,7 +3,8 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions }
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
+import StyledText from '@/components/StyledText';
 import { useCart } from '@/components/CartContext';
 
 const { width } = Dimensions.get('window');
@@ -14,7 +15,7 @@ const popularRestaurants = [
     id: '1',
     name: 'Eni Stores',
     location: 'Nsikak Eduok',
-    image: require('@/assets/images/laanieats-logo.png'), // Using existing logo as placeholder
+    image: require('@/assets/images/eni-stores.png'),
     rating: 4.5,
     reviews: 1234,
     deliveryTime: '25-30 min'
@@ -23,7 +24,7 @@ const popularRestaurants = [
     id: '2',
     name: 'Kilimanjaro',
     location: 'Ikot Ekpene Road',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/kilimajaro.png'),
     rating: 4.3,
     reviews: 856,
     deliveryTime: '20-25 min'
@@ -32,7 +33,7 @@ const popularRestaurants = [
     id: '3',
     name: 'Chicken Republic',
     location: 'Ikot Ekpene Road',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/chicken-republic.png'),
     rating: 4.7,
     reviews: 2103,
     deliveryTime: '15-20 min'
@@ -41,7 +42,7 @@ const popularRestaurants = [
     id: '4',
     name: 'Pizza Palace',
     location: 'Main Street',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/laanieats-logo.png'), // Keep logo for Pizza Palace since no specific image
     rating: 4.2,
     reviews: 567,
     deliveryTime: '30-35 min'
@@ -55,15 +56,15 @@ const topMeals = [
     name: 'Shawarma & Coke',
     description: 'Spicy beef or chicken shawarma wrapped fresh, served with ice-cold Coke.',
     price: '₦2,500',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/shawarma-and-coke.png'),
     restaurant: 'Kilimanjaro'
   },
   {
     id: '2',
-    name: 'Jollof Rice & Plantain',
+    name: 'Jellof Rice & Plantain',
     description: 'Naija-style jollof rice with crispy, golden plantain slices. Pure comfort food.',
     price: '₦2,200',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/jellof-rice.png'),
     restaurant: 'Eni Stores'
   },
   {
@@ -71,15 +72,15 @@ const topMeals = [
     name: 'Chicken & Chips',
     description: 'Crispy fried chicken with golden fries and special sauce.',
     price: '₦3,000',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/laanieats-logo.png'), // Keep logo since no specific image exists
     restaurant: 'Chicken Republic'
   },
   {
     id: '4',
-    name: 'Pepper Soup',
-    description: 'Spicy Nigerian pepper soup with assorted meat and vegetables.',
+    name: 'Okro Soup & Garri',
+    description: 'Spicy Nigerian okro soup with assorted meat and vegetables, served with garri.',
     price: '₦1,800',
-    image: require('@/assets/images/laanieats-logo.png'),
+    image: require('@/assets/images/okra-soup.png'),
     restaurant: 'Eni Stores'
   }
 ];
@@ -93,8 +94,12 @@ export default function HomeScreen() {
       onPress={() => router.push(`/restaurant/${item.id}`)}
     >
       <Image source={item.image} style={styles.restaurantImage} />
-      <Text style={styles.restaurantName}>{item.name}</Text>
-      <Text style={styles.restaurantLocation}>{item.location}</Text>
+      <StyledText variant="body" weight="semibold" style={styles.restaurantName}>
+        {item.name}
+      </StyledText>
+      <StyledText variant="caption" weight="regular" style={styles.restaurantLocation}>
+        {item.location}
+      </StyledText>
     </TouchableOpacity>
   );
 
@@ -105,15 +110,23 @@ export default function HomeScreen() {
     >
       <Image source={item.image} style={styles.mealImage} />
       <View style={styles.mealInfo}>
-        <Text style={styles.mealName}>{item.name}</Text>
-        <Text style={styles.mealDescription}>{item.description}</Text>
-        <Text style={styles.mealPrice}>{item.price}</Text>
+        <StyledText variant="subtitle" weight="bold" style={styles.mealName}>
+          {item.name}
+        </StyledText>
+        <StyledText variant="body" weight="regular" style={styles.mealDescription}>
+          {item.description}
+        </StyledText>
+        <StyledText variant="body" weight="semibold" style={styles.mealPrice}>
+          {item.price}
+        </StyledText>
         <View style={styles.mealActions}>
           <TouchableOpacity 
             style={styles.orderNowButton}
             onPress={() => router.push(`/meal/${item.id}`)}
           >
-            <Text style={styles.orderNowButtonText}>Order now</Text>
+            <StyledText variant="button" weight="semibold" style={styles.orderNowButtonText}>
+              Order now
+            </StyledText>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.addToCartButton}
@@ -128,7 +141,9 @@ export default function HomeScreen() {
               });
             }}
           >
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            <StyledText variant="button" weight="semibold" style={styles.addToCartButtonText}>
+              Add to Cart
+            </StyledText>
           </TouchableOpacity>
         </View>
       </View>
@@ -140,18 +155,19 @@ export default function HomeScreen() {
       {/* Header Section */}
       <View style={styles.headerSection}>
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeText}>Welcome, Annie</Text>
+          <StyledText variant="title" weight="bold" style={styles.welcomeText}>
+            Welcome, Annie
+          </StyledText>
           <View style={styles.locationSection}>
             <Ionicons name="location" size={16} color="#4CAF50" />
-            <Text style={styles.locationText}>Ewet Housing Estate</Text>
+            <StyledText variant="body" weight="medium" style={styles.locationText}>
+              Ewet Housing Estate
+            </StyledText>
           </View>
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.profileButton}>
-            <Image 
-              source={require('@/assets/images/laanieats-logo.png')} 
-              style={styles.profileImage} 
-            />
+          <Image source={{ uri: 'https://avatar.iran.liara.run/public/boy?username=Ash' }} style={styles.profileImage} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.cartButton}
@@ -160,7 +176,9 @@ export default function HomeScreen() {
             <Ionicons name="cart" size={24} color="#333" />
             {state.totalItems > 0 && (
               <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{state.totalItems}</Text>
+                <StyledText variant="caption" weight="bold" style={styles.cartBadgeText}>
+                  {state.totalItems}
+                </StyledText>
               </View>
             )}
           </TouchableOpacity>
@@ -173,27 +191,26 @@ export default function HomeScreen() {
       {/* Banner Section */}
       <View style={styles.bannerSection}>
         <Image 
-          source={require('@/assets/images/laanieats-logo.png')} 
+          source={require('@/assets/images/what-are-you-eating.png')} 
           style={styles.bannerImage} 
         />
-        <View style={styles.bannerTextContainer}>
-          <Text style={styles.bannerText}>What are you eating today?</Text>
-        </View>
       </View>
 
       {/* Popular Restaurants Section */}
       <View style={styles.sectionContainer}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular Restaurants</Text>
+          <StyledText variant="subtitle" weight="bold" style={styles.sectionTitle}>
+            Popular Restaurants
+          </StyledText>
           <View style={styles.navigationArrows}>
             <TouchableOpacity style={styles.arrowButton}>
-              <Ionicons name="chevron-back" size={20} color="#CCC" />
+              <Ionicons name="chevron-back" size={20} color="#333" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.arrowButton}>
               <Ionicons name="chevron-forward" size={20} color="#333" />
-        </TouchableOpacity>
-      </View>
-    </View>
+            </TouchableOpacity>
+          </View>
+        </View>
         <FlatList
           data={popularRestaurants}
           renderItem={renderRestaurantCard}
@@ -206,7 +223,11 @@ export default function HomeScreen() {
 
       {/* Top Meals Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Top Meals</Text>
+        <View style={styles.sectionHeader}>
+          <StyledText variant="subtitle" weight="bold" style={styles.sectionTitle}>
+            Top Meals
+          </StyledText>
+        </View>
         <FlatList
           data={topMeals}
           renderItem={renderMealCard}
@@ -222,63 +243,63 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f4f5f4',
   },
   headerSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   welcomeSection: {
     flex: 1,
   },
   welcomeText: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   locationSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   locationText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     marginLeft: 6,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
   },
   profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     overflow: 'hidden',
   },
   profileImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 20,
+    borderRadius: 18,
   },
   cartButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   cartBadge: {
     position: 'absolute',
-    top: -5,
-    right: -5,
+    top: -4,
+    right: -4,
     backgroundColor: '#FF6B35',
     borderRadius: 10,
     minWidth: 20,
@@ -288,125 +309,105 @@ const styles = StyleSheet.create({
   },
   cartBadgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   notificationButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   bannerSection: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 30,
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    marginHorizontal: 16,
+    marginBottom: 24,
+    alignItems: 'center',
   },
   bannerImage: {
-    width: 120,
-    height: 120,
-    resizeMode: 'cover',
+    width: '100%',
+    height: 100,
+    borderRadius: 12,
   },
   bannerTextContainer: {
     flex: 1,
-    backgroundColor: '#FF6B35',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
   },
   bannerText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center',
   },
   sectionContainer: {
-    marginBottom: 30,
+    marginBottom: 24,
+    backgroundColor: '#f4f5f4',
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     marginBottom: 16,
+    backgroundColor: 'transparent',
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
   navigationArrows: {
     flexDirection: 'row',
     gap: 8,
+    backgroundColor: 'transparent',
   },
   arrowButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   restaurantsList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   restaurantCard: {
     width: 160,
-    marginRight: 16,
-    backgroundColor: '#FFF',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginRight: 12,
   },
   restaurantImage: {
     width: '100%',
-    height: 100,
+    height: 80,
     borderRadius: 8,
-    marginBottom: 12,
+    marginBottom: 8,
     resizeMode: 'cover',
   },
   restaurantName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1A1A1A',
     marginBottom: 4,
   },
   restaurantLocation: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
   },
   mealCard: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 12,
+    backgroundColor: '#fff',
   },
   mealImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginRight: 16,
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
     resizeMode: 'cover',
   },
   mealInfo: {
@@ -414,53 +415,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   mealName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   mealDescription: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
-    marginBottom: 12,
-    lineHeight: 20,
+    marginBottom: 8,
+    lineHeight: 16,
   },
   mealPrice: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#4CAF50',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   mealActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
   },
   orderNowButton: {
     backgroundColor: '#FF6B35',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
     flex: 1,
     alignItems: 'center',
   },
   orderNowButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
   addToCartButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#FF6B35',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
     flex: 1,
     alignItems: 'center',
   },
   addToCartButtonText: {
     color: '#FF6B35',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
 });

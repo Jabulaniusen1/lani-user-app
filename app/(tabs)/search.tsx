@@ -3,7 +3,8 @@ import { StyleSheet, ScrollView, TouchableOpacity, TextInput, FlatList, Image } 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
+import StyledText from '@/components/StyledText';
 
 // Dummy search results
 const searchResults = [
@@ -68,10 +69,18 @@ export default function SearchScreen() {
     >
       <Image source={item.image} style={styles.searchResultImage} />
       <View style={styles.searchResultInfo}>
-        <Text style={styles.searchResultName}>{item.name}</Text>
-        <Text style={styles.searchResultRestaurant}>{item.restaurant}</Text>
-        <Text style={styles.searchResultCategory}>{item.category}</Text>
-        <Text style={styles.searchResultPrice}>{item.price}</Text>
+        <StyledText variant="subtitle" weight="bold" style={styles.searchResultName}>
+          {item.name}
+        </StyledText>
+        <StyledText variant="body" weight="regular" style={styles.searchResultRestaurant}>
+          {item.restaurant}
+        </StyledText>
+        <StyledText variant="caption" weight="medium" style={styles.searchResultCategory}>
+          {item.category}
+        </StyledText>
+        <StyledText variant="body" weight="semibold" style={styles.searchResultPrice}>
+          {item.price}
+        </StyledText>
       </View>
     </TouchableOpacity>
   );
@@ -81,7 +90,9 @@ export default function SearchScreen() {
       style={styles.popularSearchChip}
       onPress={() => handleSearch(item)}
     >
-      <Text style={styles.popularSearchText}>{item}</Text>
+      <StyledText variant="body" weight="medium" style={styles.popularSearchText}>
+        {item}
+      </StyledText>
     </TouchableOpacity>
   );
 
@@ -89,7 +100,9 @@ export default function SearchScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Search</Text>
+        <StyledText variant="title" weight="bold" style={styles.headerTitle}>
+          Search
+        </StyledText>
       </View>
 
       {/* Search Bar */}
@@ -114,7 +127,9 @@ export default function SearchScreen() {
       {/* Popular Searches */}
       {searchQuery.length === 0 && (
         <View style={styles.popularSearchesContainer}>
-          <Text style={styles.sectionTitle}>Popular Searches</Text>
+          <StyledText variant="subtitle" weight="semibold" style={styles.sectionTitle}>
+            Popular Searches
+          </StyledText>
           <FlatList
             data={popularSearches}
             renderItem={renderPopularSearch}
@@ -128,9 +143,9 @@ export default function SearchScreen() {
 
       {/* Search Results */}
       <View style={styles.searchResultsContainer}>
-        <Text style={styles.sectionTitle}>
+        <StyledText variant="subtitle" weight="semibold" style={styles.sectionTitle}>
           {searchQuery.length > 0 ? 'Search Results' : 'Recent Searches'}
-        </Text>
+        </StyledText>
         <FlatList
           data={searchResults}
           renderItem={renderSearchResult}
@@ -149,18 +164,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 20,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
   searchContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+    paddingHorizontal: 16,
+    marginBottom: 24,
   },
   searchBar: {
     flexDirection: 'row',
@@ -175,21 +190,21 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     color: '#1A1A1A',
   },
   popularSearchesContainer: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '600',
     color: '#1A1A1A',
-    marginBottom: 16,
-    paddingHorizontal: 20,
+    marginBottom: 12,
+    paddingHorizontal: 16,
   },
   popularSearchesList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   popularSearchChip: {
     backgroundColor: '#F5F5F5',
@@ -201,29 +216,27 @@ const styles = StyleSheet.create({
   popularSearchText: {
     fontSize: 14,
     color: '#666',
-    fontWeight: '500',
   },
   searchResultsContainer: {
-    paddingBottom: 30,
+    paddingHorizontal: 16,
   },
   searchResultCard: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
   },
   searchResultImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    marginRight: 16,
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+    marginRight: 12,
     resizeMode: 'cover',
   },
   searchResultInfo: {
@@ -231,25 +244,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   searchResultName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 4,
   },
   searchResultRestaurant: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     marginBottom: 4,
   },
   searchResultCategory: {
     fontSize: 12,
-    color: '#999',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    fontWeight: '500',
+    color: '#FF6B35',
+    marginBottom: 6,
   },
   searchResultPrice: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#4CAF50',
   },

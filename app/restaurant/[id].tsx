@@ -3,7 +3,8 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions }
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
+import StyledText from '@/components/StyledText';
 import { useCart } from '@/components/CartContext';
 
 const { width } = Dimensions.get('window');
@@ -172,7 +173,7 @@ export default function RestaurantScreen() {
   if (!restaurant) {
     return (
       <View style={styles.container}>
-        <Text>Restaurant not found</Text>
+        <StyledText>Restaurant not found</StyledText>
       </View>
     );
   }
@@ -188,15 +189,23 @@ export default function RestaurantScreen() {
     >
       <Image source={item.image} style={styles.mealImage} />
       <View style={styles.mealInfo}>
-        <Text style={styles.mealName}>{item.name}</Text>
-        <Text style={styles.mealDescription}>{item.description}</Text>
-        <Text style={styles.mealPrice}>{item.price}</Text>
+        <StyledText variant="subtitle" weight="bold" style={styles.mealName}>
+          {item.name}
+        </StyledText>
+        <StyledText variant="body" weight="regular" style={styles.mealDescription}>
+          {item.description}
+        </StyledText>
+        <StyledText variant="body" weight="semibold" style={styles.mealPrice}>
+          {item.price}
+        </StyledText>
         <View style={styles.mealActions}>
           <TouchableOpacity 
             style={styles.orderNowButton}
             onPress={() => router.push(`/meal/${item.id}`)}
           >
-            <Text style={styles.orderNowButtonText}>Order now</Text>
+            <StyledText variant="button" weight="semibold" style={styles.orderNowButtonText}>
+              Order now
+            </StyledText>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.addToCartButton}
@@ -211,7 +220,9 @@ export default function RestaurantScreen() {
               });
             }}
           >
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            <StyledText variant="button" weight="semibold" style={styles.addToCartButtonText}>
+              Add to Cart
+            </StyledText>
           </TouchableOpacity>
         </View>
       </View>
@@ -226,12 +237,16 @@ export default function RestaurantScreen() {
       ]}
       onPress={() => setSelectedCategory(item)}
     >
-      <Text style={[
-        styles.categoryButtonText,
-        selectedCategory === item && styles.categoryButtonTextActive
-      ]}>
+      <StyledText 
+        variant="body" 
+        weight="medium"
+        style={[
+          styles.categoryButtonText,
+          selectedCategory === item && styles.categoryButtonTextActive
+        ]}
+      >
         {item}
-      </Text>
+      </StyledText>
     </TouchableOpacity>
   );
 
@@ -245,7 +260,9 @@ export default function RestaurantScreen() {
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{restaurant.name} - {restaurant.location}</Text>
+        <StyledText variant="body" weight="semibold" style={styles.headerTitle}>
+          {restaurant.name} - {restaurant.location}
+        </StyledText>
         <TouchableOpacity style={styles.moreButton}>
           <Ionicons name="ellipsis-vertical" size={24} color="#333" />
         </TouchableOpacity>
@@ -256,24 +273,36 @@ export default function RestaurantScreen() {
 
       {/* Restaurant Details */}
       <View style={styles.restaurantDetails}>
-        <Text style={styles.restaurantName}>{restaurant.name} - {restaurant.location}</Text>
+        <StyledText variant="title" weight="bold" style={styles.restaurantName}>
+          {restaurant.name} - {restaurant.location}
+        </StyledText>
         <View style={styles.restaurantStats}>
           <View style={styles.ratingContainer}>
             <Ionicons name="star" size={16} color="#FFD700" />
-            <Text style={styles.ratingText}>{restaurant.rating} ({restaurant.reviews} reviews)</Text>
+            <StyledText variant="body" weight="medium" style={styles.ratingText}>
+              {restaurant.rating} ({restaurant.reviews} reviews)
+            </StyledText>
           </View>
-          <Text style={styles.deliveryTime}>• {restaurant.deliveryTime}</Text>
+          <StyledText variant="body" weight="regular" style={styles.deliveryTime}>
+            • {restaurant.deliveryTime}
+          </StyledText>
         </View>
-        <Text style={styles.restaurantDescription}>{restaurant.description}</Text>
+        <StyledText variant="body" weight="regular" style={styles.restaurantDescription}>
+          {restaurant.description}
+        </StyledText>
       </View>
 
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.messageButton}>
-          <Text style={styles.messageButtonText}>Send message</Text>
+          <StyledText variant="button" weight="semibold" style={styles.messageButtonText}>
+            Send message
+          </StyledText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.callButton}>
-          <Text style={styles.callButtonText}>Call</Text>
+          <StyledText variant="button" weight="semibold" style={styles.callButtonText}>
+            Call
+          </StyledText>
         </TouchableOpacity>
       </View>
 
@@ -306,36 +335,37 @@ export default function RestaurantScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F5F5F5',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
+    backgroundColor: '#FFFFFF',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1A1A1A',
     flex: 1,
     textAlign: 'center',
-    marginHorizontal: 10,
+    marginHorizontal: 12,
   },
   moreButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
@@ -346,11 +376,12 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   restaurantDetails: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    marginBottom: 16,
   },
   restaurantName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 12,
@@ -363,68 +394,68 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 12,
   },
   ratingText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 14,
+    color: '#1A1A1A',
     marginLeft: 4,
   },
   deliveryTime: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
   },
   restaurantDescription: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    lineHeight: 24,
+    lineHeight: 20,
   },
   actionButtons: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
     gap: 12,
+    paddingHorizontal: 16,
+    marginBottom: 20,
   },
   messageButton: {
     flex: 1,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#FF6B35',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   messageButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#FF6B35',
+    fontSize: 14,
     fontWeight: '600',
   },
   callButton: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
+    backgroundColor: '#FF6B35',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   callButtonText: {
-    color: '#4CAF50',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 14,
     fontWeight: '600',
   },
   categoriesContainer: {
     marginBottom: 20,
   },
   categoriesList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   categoryButton: {
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
     marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   categoryButtonActive: {
     backgroundColor: '#FF6B35',
@@ -433,86 +464,83 @@ const styles = StyleSheet.create({
   categoryButtonText: {
     fontSize: 14,
     color: '#666',
-    fontWeight: '500',
   },
   categoryButtonTextActive: {
     color: '#FFFFFF',
   },
   mealsContainer: {
-    paddingBottom: 30,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   mealCard: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
   },
   mealImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginRight: 16,
+    width: '100%',
+    height: 160,
+    borderRadius: 8,
+    marginBottom: 12,
     resizeMode: 'cover',
   },
   mealInfo: {
-    flex: 1,
     justifyContent: 'space-between',
   },
   mealName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 6,
   },
   mealDescription: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
-    marginBottom: 12,
-    lineHeight: 20,
+    marginBottom: 8,
+    lineHeight: 16,
   },
   mealPrice: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#4CAF50',
     marginBottom: 12,
   },
   mealActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
   },
   orderNowButton: {
     backgroundColor: '#FF6B35',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 16,
     flex: 1,
     alignItems: 'center',
   },
   orderNowButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
   },
   addToCartButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#FF6B35',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 16,
     flex: 1,
     alignItems: 'center',
   },
   addToCartButtonText: {
     color: '#FF6B35',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
   },
 });

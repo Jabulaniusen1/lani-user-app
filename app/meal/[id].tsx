@@ -3,7 +3,8 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'rea
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
+import StyledText from '@/components/StyledText';
 import { useCart } from '@/components/CartContext';
 
 const { width } = Dimensions.get('window');
@@ -163,7 +164,7 @@ export default function MealScreen() {
   if (!meal) {
     return (
       <View style={styles.container}>
-        <Text>Meal not found</Text>
+        <StyledText>Meal not found</StyledText>
       </View>
     );
   }
@@ -205,7 +206,9 @@ export default function MealScreen() {
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{meal.restaurant}</Text>
+        <StyledText variant="body" weight="semibold" style={styles.headerTitle}>
+          {meal.restaurant}
+        </StyledText>
         <TouchableOpacity style={styles.moreButton}>
           <Ionicons name="ellipsis-vertical" size={24} color="#333" />
         </TouchableOpacity>
@@ -223,51 +226,79 @@ export default function MealScreen() {
               style={styles.quantityButton}
               onPress={decreaseQuantity}
             >
-              <Ionicons name="remove" size={20} color="#FF6B35" />
+              <Ionicons name="remove" size={20} color="#ffffff" />
             </TouchableOpacity>
-            <Text style={styles.quantityText}>{quantity}</Text>
+            <StyledText variant="body" weight="semibold" style={styles.quantityText}>
+              {quantity}
+            </StyledText>
             <TouchableOpacity 
               style={styles.quantityButton}
               onPress={increaseQuantity}
             >
-              <Ionicons name="add" size={20} color="#FF6B35" />
+              <Ionicons name="add" size={20} color="#ffffff" />
             </TouchableOpacity>
           </View>
-          <Text style={styles.mealPrice}>{meal.price}</Text>
+          <StyledText variant="title" weight="bold" style={styles.mealPrice}>
+            {meal.price}
+          </StyledText>
         </View>
 
         {/* Meal Name */}
-        <Text style={styles.mealName}>{meal.name}</Text>
+        <StyledText variant="title" weight="bold" style={styles.mealName}>
+          {meal.name}
+        </StyledText>
 
         {/* Meal Description */}
-        <Text style={styles.mealDescription}>{meal.description}</Text>
+        <StyledText variant="body" weight="regular" style={styles.mealDescription}>
+          {meal.description}
+        </StyledText>
 
         {/* Meal Info Grid */}
         <View style={styles.mealInfoGrid}>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Category</Text>
-            <Text style={styles.infoValue}>{meal.category}</Text>
+            <StyledText variant="caption" weight="medium" style={styles.infoLabel}>
+              Category
+            </StyledText>
+            <StyledText variant="body" weight="semibold" style={styles.infoValue}>
+              {meal.category}
+            </StyledText>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Prep Time</Text>
-            <Text style={styles.infoValue}>{meal.preparationTime}</Text>
+            <StyledText variant="caption" weight="medium" style={styles.infoLabel}>
+              Prep Time
+            </StyledText>
+            <StyledText variant="body" weight="semibold" style={styles.infoValue}>
+              {meal.preparationTime}
+            </StyledText>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Spice Level</Text>
-            <Text style={styles.infoValue}>{meal.spiceLevel}</Text>
+            <StyledText variant="caption" weight="medium" style={styles.infoLabel}>
+              Spice Level
+            </StyledText>
+            <StyledText variant="body" weight="semibold" style={styles.infoValue}>
+              {meal.spiceLevel}
+            </StyledText>
           </View>
         </View>
 
         {/* Ingredients Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ingredients:</Text>
-          <Text style={styles.sectionContent}>{meal.ingredients}</Text>
+          <StyledText variant="subtitle" weight="bold" style={styles.sectionTitle}>
+            Ingredients:
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.sectionContent}>
+            {meal.ingredients}
+          </StyledText>
         </View>
 
         {/* Allergen Info Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Allergen Info:</Text>
-          <Text style={styles.sectionContent}>{meal.allergens}</Text>
+          <StyledText variant="subtitle" weight="bold" style={styles.sectionTitle}>
+            Allergen Info:
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.sectionContent}>
+            {meal.allergens}
+          </StyledText>
         </View>
 
         {/* Action Buttons */}
@@ -276,13 +307,17 @@ export default function MealScreen() {
             style={styles.orderNowButton}
             onPress={handleOrderNow}
           >
-            <Text style={styles.orderNowButtonText}>Order now</Text>
+            <StyledText variant="button" weight="semibold" style={styles.orderNowButtonText}>
+              Order now
+            </StyledText>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.addToCartButton}
             onPress={handleAddToCart}
           >
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            <StyledText variant="button" weight="semibold" style={styles.addToCartButtonText}>
+              Add to Cart
+            </StyledText>
           </TouchableOpacity>
         </View>
       </View>
@@ -293,37 +328,37 @@ export default function MealScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#fff1e8',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
     backgroundColor: '#FFFFFF',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '600',
     color: '#1A1A1A',
     flex: 1,
     textAlign: 'center',
-    marginHorizontal: 10,
+    marginHorizontal: 12,
   },
   moreButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
@@ -334,129 +369,119 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   mealDetailsCard: {
-    backgroundColor: '#F8F8F8',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    marginTop: -24,
-    flex: 1,
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    borderRadius: 16,
+    padding: 16,
   },
   quantityPriceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   quantitySelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
   quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F5F5F5',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FF6B35',
     alignItems: 'center',
     justifyContent: 'center',
   },
   quantityText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#1A1A1A',
-    marginHorizontal: 16,
-    minWidth: 30,
+    marginHorizontal: 12,
+    minWidth: 20,
     textAlign: 'center',
   },
   mealPrice: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#FF6B35',
   },
   mealName: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   mealDescription: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    lineHeight: 24,
-    marginBottom: 24,
+    lineHeight: 20,
+    marginBottom: 16,
   },
   mealInfoGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   infoItem: {
-    flex: 1,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 4,
+    flex: 1,
   },
   infoLabel: {
     fontSize: 12,
     color: '#666',
     marginBottom: 4,
-    textTransform: 'uppercase',
-    fontWeight: '500',
   },
   infoValue: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1A1A1A',
-    textAlign: 'center',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 8,
   },
   sectionContent: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    lineHeight: 24,
+    lineHeight: 20,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 16,
-    marginTop: 16,
+    gap: 12,
+    marginTop: 24,
   },
   orderNowButton: {
     backgroundColor: '#FF6B35',
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 14,
+    borderRadius: 10,
     flex: 1,
     alignItems: 'center',
   },
   orderNowButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   addToCartButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#FF6B35',
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 14,
+    borderRadius: 10,
     flex: 1,
     alignItems: 'center',
   },
   addToCartButtonText: {
     color: '#FF6B35',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
 });

@@ -3,7 +3,8 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList } from 'react
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
+import StyledText from '@/components/StyledText';
 
 // Dummy order history data
 const orderHistory = [
@@ -102,11 +103,17 @@ export default function HistoryScreen() {
       {/* Order Header */}
       <View style={styles.orderHeader}>
         <View style={styles.orderInfo}>
-          <Text style={styles.orderNumber}>{item.orderNumber}</Text>
-          <Text style={styles.orderDate}>{item.date}</Text>
+          <StyledText variant="body" weight="bold" style={styles.orderNumber}>
+            {item.orderNumber}
+          </StyledText>
+          <StyledText variant="body" weight="regular" style={styles.orderDate}>
+            {item.date}
+          </StyledText>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: item.statusColor }]}>
-          <Text style={styles.statusText}>{item.status}</Text>
+          <StyledText variant="caption" weight="semibold" style={styles.statusText}>
+            {item.status}
+          </StyledText>
         </View>
       </View>
 
@@ -116,11 +123,19 @@ export default function HistoryScreen() {
           <View key={meal.id} style={styles.mealItem}>
             <Image source={meal.image} style={styles.mealImage} />
             <View style={styles.mealInfo}>
-              <Text style={styles.mealName}>{meal.name}</Text>
-              <Text style={styles.mealRestaurant}>{meal.restaurant}</Text>
-              <Text style={styles.mealQuantity}>Qty: {meal.quantity}</Text>
+              <StyledText variant="subtitle" weight="bold" style={styles.mealName}>
+                {meal.name}
+              </StyledText>
+              <StyledText variant="body" weight="regular" style={styles.mealRestaurant}>
+                {meal.restaurant}
+              </StyledText>
+              <StyledText variant="caption" weight="regular" style={styles.mealQuantity}>
+                Qty: {meal.quantity}
+              </StyledText>
             </View>
-            <Text style={styles.mealPrice}>{meal.price}</Text>
+            <StyledText variant="body" weight="semibold" style={styles.mealPrice}>
+              {meal.price}
+            </StyledText>
           </View>
         ))}
       </View>
@@ -129,21 +144,31 @@ export default function HistoryScreen() {
       <View style={styles.orderFooter}>
         <View style={styles.deliveryInfo}>
           <Ionicons name="location" size={16} color="#666" />
-          <Text style={styles.deliveryAddress}>{item.deliveryAddress}</Text>
+          <StyledText variant="body" weight="regular" style={styles.deliveryAddress}>
+            {item.deliveryAddress}
+          </StyledText>
         </View>
         <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalAmount}>{item.totalAmount}</Text>
+          <StyledText variant="body" weight="regular" style={styles.totalLabel}>
+            Total:
+          </StyledText>
+          <StyledText variant="subtitle" weight="bold" style={styles.totalAmount}>
+            {item.totalAmount}
+          </StyledText>
         </View>
       </View>
 
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.reorderButton}>
-          <Text style={styles.reorderButtonText}>Reorder</Text>
+          <StyledText variant="button" weight="semibold" style={styles.reorderButtonText}>
+            Reorder
+          </StyledText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.viewDetailsButton}>
-          <Text style={styles.viewDetailsButtonText}>View Details</Text>
+          <StyledText variant="button" weight="semibold" style={styles.viewDetailsButtonText}>
+            View Details
+          </StyledText>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -153,8 +178,12 @@ export default function HistoryScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Order History</Text>
-        <Text style={styles.headerSubtitle}>Track your previous orders</Text>
+        <StyledText variant="title" weight="bold" style={styles.headerTitle}>
+          Order History
+        </StyledText>
+        <StyledText variant="body" weight="regular" style={styles.headerSubtitle}>
+          Track your previous orders
+        </StyledText>
       </View>
 
       {/* Order History List */}
@@ -174,38 +203,37 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
     backgroundColor: '#FFFFFF',
   },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
   },
   orderHistoryContainer: {
-    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   orderCard: {
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
   },
   orderHeader: {
     flexDirection: 'row',
@@ -223,7 +251,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   orderDate: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
   },
   statusBadge: {
@@ -232,10 +260,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    color: '#FFFFFF',
   },
   orderItems: {
     marginBottom: 16,
@@ -246,9 +272,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   mealImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 6,
     marginRight: 12,
     resizeMode: 'cover',
   },
@@ -256,13 +282,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mealName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 2,
   },
   mealRestaurant: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     marginBottom: 2,
   },
@@ -271,40 +297,34 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   mealPrice: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#4CAF50',
   },
   orderFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
   },
   deliveryInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    marginBottom: 8,
   },
   deliveryAddress: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     marginLeft: 6,
-    flex: 1,
   },
   totalSection: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   totalLabel: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 2,
   },
   totalAmount: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1A1A1A',
   },
@@ -314,8 +334,8 @@ const styles = StyleSheet.create({
   },
   reorderButton: {
     backgroundColor: '#FF6B35',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
     flex: 1,
     alignItems: 'center',
@@ -329,8 +349,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#FF6B35',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
     flex: 1,
     alignItems: 'center',
