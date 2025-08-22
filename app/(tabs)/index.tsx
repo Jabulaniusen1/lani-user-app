@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -153,6 +153,7 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header Section */}
+      <SafeAreaView>
       <View style={styles.headerSection}>
         <View style={styles.welcomeSection}>
           <StyledText variant="title" weight="bold" style={styles.welcomeText}>
@@ -236,6 +237,7 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         />
       </View>
+      </SafeAreaView>
     </ScrollView>
   );
 }
@@ -244,6 +246,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f4f5f4',
+    marginTop: 50,
   },
   headerSection: {
     flexDirection: 'row',
@@ -252,9 +255,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
+    backgroundColor: 'transparent',
   },
   welcomeSection: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
   welcomeText: {
     fontSize: 20,
@@ -265,6 +270,7 @@ const styles = StyleSheet.create({
   locationSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   locationText: {
     fontSize: 14,
@@ -275,6 +281,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    backgroundColor: 'transparent',
   },
   profileButton: {
     width: 36,

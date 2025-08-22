@@ -98,7 +98,8 @@ export default function HistoryScreen() {
   const renderOrderItem = ({ item }: { item: any }) => (
     <TouchableOpacity 
       style={styles.orderCard}
-      onPress={() => router.push(`/order/${item.id}`)}
+      // onPress={() => router.push(`/order/${item.id}`)}
+      onPress={() => console.log('Order details not implemented yet')}
     >
       {/* Order Header */}
       <View style={styles.orderHeader}>
@@ -203,7 +204,8 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
+    marginTop: 50,
   },
   header: {
     paddingHorizontal: 16,

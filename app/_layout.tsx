@@ -59,6 +59,7 @@ function RootLayoutNav() {
           <Stack.Screen name="restaurant/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="cart" options={{ headerShown: false }} />
+          <Stack.Screen name="checkout" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
     </CartProvider>

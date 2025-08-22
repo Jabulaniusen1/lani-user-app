@@ -7,44 +7,12 @@ import { View } from '@/components/Themed';
 import StyledText from '@/components/StyledText';
 
 export default function ProfileScreen() {
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
 
   const profileMenuItems = [
     {
       id: '1',
-      title: 'Personal Information',
-      icon: 'person-outline',
-      action: () => console.log('Personal Information'),
-      showArrow: true
-    },
-    {
-      id: '2',
-      title: 'Addresses',
-      icon: 'location-outline',
-      action: () => console.log('Addresses'),
-      showArrow: true
-    },
-    {
-      id: '3',
-      title: 'Payment Methods',
-      icon: 'card-outline',
-      action: () => console.log('Payment Methods'),
-      showArrow: true
-    },
-    {
-      id: '4',
-      title: 'Notifications',
-      icon: 'notifications-outline',
-      action: null,
-      showArrow: false,
-      isSwitch: true,
-      switchValue: notificationsEnabled,
-      onSwitchChange: setNotificationsEnabled
-    },
-    {
-      id: '5',
-      title: 'Dark Mode',
+      title: 'Dark mode',
       icon: 'moon-outline',
       action: null,
       showArrow: false,
@@ -53,26 +21,54 @@ export default function ProfileScreen() {
       onSwitchChange: setDarkModeEnabled
     },
     {
-      id: '6',
-      title: 'Help & Support',
+      id: '2',
+      title: 'Orders',
+      icon: 'document-text-outline',
+      action: () => console.log('Orders'),
+      showArrow: true
+    },
+    {
+      id: '3',
+      title: 'Settings',
+      icon: 'settings-outline',
+      action: () => console.log('Settings'),
+      showArrow: true
+    },
+    {
+      id: '4',
+      title: 'Payment method',
+      icon: 'wallet-outline',
+      action: () => console.log('Payment method'),
+      showArrow: true
+    },
+    {
+      id: '5',
+      title: 'Help',
       icon: 'help-circle-outline',
-      action: () => console.log('Help & Support'),
+      action: () => console.log('Help'),
+      showArrow: true
+    },
+    {
+      id: '6',
+      title: 'Privacy policy',
+      icon: 'shield-checkmark-outline',
+      action: () => console.log('Privacy policy'),
       showArrow: true
     },
     {
       id: '7',
-      title: 'About',
-      icon: 'information-circle-outline',
-      action: () => console.log('About'),
-      showArrow: true
-    },
-    {
-      id: '8',
-      title: 'Logout',
+      title: 'Log out',
       icon: 'log-out-outline',
       action: () => router.push('/auth/login'),
       showArrow: false,
       isDestructive: true
+    },
+    {
+      id: '8',
+      title: 'Sign in as a rider',
+      icon: 'person-add-outline',
+      action: () => console.log('Sign in as a rider'),
+      showArrow: true
     }
   ];
 
@@ -115,63 +111,20 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <StyledText variant="title" weight="bold" style={styles.headerTitle}>
-          Profile
-        </StyledText>
-      </View>
-
       {/* Profile Section */}
       <View style={styles.profileSection}>
         <Image 
-          source={require('@/assets/images/laanieats-logo.png')} 
+          source={{ uri: 'https://avatar.iran.liara.run/public/girl?username=Annie' }} 
           style={styles.profileImage} 
         />
-        <View style={styles.profileInfo}>
-          <StyledText variant="title" weight="bold" style={styles.profileName}>
-            Annie Johnson
-          </StyledText>
-          <StyledText variant="body" weight="regular" style={styles.profileEmail}>
-            annie.johnson@email.com
-          </StyledText>
-          <StyledText variant="body" weight="regular" style={styles.profilePhone}>
-            +234 801 234 5678
-          </StyledText>
-        </View>
+        <StyledText variant="title" weight="bold" style={styles.profileName}>
+          Annie Davies
+        </StyledText>
         <TouchableOpacity style={styles.editProfileButton}>
-          <Ionicons name="create-outline" size={20} color="#FF6B35" />
+          <StyledText variant="body" weight="medium" style={styles.editProfileText}>
+            Edit profile {'>'}
+          </StyledText>
         </TouchableOpacity>
-      </View>
-
-      {/* Stats Section */}
-      <View style={styles.statsSection}>
-        <View style={styles.statItem}>
-          <StyledText variant="subtitle" weight="bold" style={styles.statNumber}>
-            24
-          </StyledText>
-          <StyledText variant="body" weight="regular" style={styles.statLabel}>
-            Orders
-          </StyledText>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <StyledText variant="subtitle" weight="bold" style={styles.statNumber}>
-            8
-          </StyledText>
-          <StyledText variant="body" weight="regular" style={styles.statLabel}>
-            Favorites
-          </StyledText>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <StyledText variant="subtitle" weight="bold" style={styles.statNumber}>
-            ₦45,200
-          </StyledText>
-          <StyledText variant="body" weight="regular" style={styles.statLabel}>
-            Total Spent
-          </StyledText>
-        </View>
       </View>
 
       {/* Menu Items */}
@@ -185,13 +138,6 @@ export default function ProfileScreen() {
           </View>
         ))}
       </View>
-
-      {/* App Version */}
-      <View style={styles.versionSection}>
-        <StyledText variant="caption" weight="regular" style={styles.versionText}>
-          Lani Eats v1.0.0
-        </StyledText>
-      </View>
     </ScrollView>
   );
 }
@@ -199,91 +145,52 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    backgroundColor: '#F5F5F5',
+    marginTop: 50,
   },
   profileSection: {
-    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingTop: 20,
+    paddingBottom: 32,
   },
   profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
   },
   profileName: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 6,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  profilePhone: {
-    fontSize: 14,
-    color: '#666',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   editProfileButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 8,
   },
-  statsSection: {
-    flexDirection: 'row',
-    backgroundColor: '#F8F8F8',
-    marginHorizontal: 16,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 8,
+  editProfileText: {
+    fontSize: 14,
+    color: '#FF6B35',
+    fontWeight: '500',
   },
   menuSection: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    borderRadius: 16,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
     paddingVertical: 16,
   },
   menuItemLeft: {
@@ -301,14 +208,6 @@ const styles = StyleSheet.create({
   menuDivider: {
     height: 1,
     backgroundColor: '#F0F0F0',
-    marginLeft: 48,
-  },
-  versionSection: {
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
-  versionText: {
-    fontSize: 12,
-    color: '#999',
+    marginHorizontal: 20,
   },
 });

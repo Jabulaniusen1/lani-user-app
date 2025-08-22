@@ -32,6 +32,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#FF6B35',
         tabBarInactiveTintColor: '#999',
         tabBarShowLabel: false,
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
@@ -45,7 +46,6 @@ export default function TabLayout() {
           fontWeight: '500',
           marginTop: 4,
         },
-        headerShown: useClientOnlyValue(false, true),
       }}>
       <Tabs.Screen
         name="index"

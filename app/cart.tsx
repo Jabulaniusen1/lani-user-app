@@ -12,9 +12,8 @@ export default function CartScreen() {
   const { state, removeItem, updateQuantity, clearCart } = useCart();
 
   const handleCheckout = () => {
-    // Implement checkout functionality
-    console.log('Proceeding to checkout with:', state.items);
-    // You can navigate to a checkout screen here
+    // Navigate to checkout page
+    router.push('/checkout');
   };
 
   const handleRemoveItem = (id: string) => {
@@ -182,16 +181,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'transparent',
     paddingHorizontal: 16,
-    paddingTop: 16,
+    marginTop: 16,
     paddingBottom: 16,
   },
   backButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },

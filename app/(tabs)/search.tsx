@@ -7,7 +7,7 @@ import { View } from '@/components/Themed';
 import StyledText from '@/components/StyledText';
 
 // Dummy search results
-const searchResults = [
+const initialSearchResults = [
   {
     id: '1',
     name: 'Jollof Rice',
@@ -46,14 +46,14 @@ const popularSearches = ['Jollof Rice', 'Shawarma', 'Chicken', 'Pizza', 'Soup', 
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(searchResults);
+  const [searchResults, setSearchResults] = useState(initialSearchResults);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
-      setSearchResults(searchResults);
+      setSearchResults(initialSearchResults);
     } else {
-      const filtered = searchResults.filter(item =>
+      const filtered = initialSearchResults.filter((item: any) =>
         item.name.toLowerCase().includes(query.toLowerCase()) ||
         item.restaurant.toLowerCase().includes(query.toLowerCase()) ||
         item.category.toLowerCase().includes(query.toLowerCase())
@@ -161,7 +161,8 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
+    marginTop: 50,
   },
   header: {
     paddingHorizontal: 16,
