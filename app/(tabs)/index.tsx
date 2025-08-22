@@ -87,6 +87,27 @@ const topMeals = [
 
 export default function HomeScreen() {
   const { addItem, state } = useCart();
+  const scrollViewRef = React.useRef<FlatList>(null);
+  const [currentRestaurantIndex, setCurrentRestaurantIndex] = React.useState(0);
+
+  const handlePreviousRestaurants = () => {
+    if (currentRestaurantIndex > 0) {
+      const newIndex = currentRestaurantIndex - 1;
+      setCurrentRestaurantIndex(newIndex);
+      // Scroll to the previous set of restaurants
+      scrollViewRef.current?.scrollToOffset({ offset: newIndex * 160, animated: true });
+    }
+  };
+
+  const handleNextRestaurants = () => {
+    const maxIndex = Math.max(0, popularRestaurants.length - 2); // Show 2 restaurants at a time
+    if (currentRestaurantIndex < maxIndex) {
+      const newIndex = currentRestaurantIndex + 1;
+      setCurrentRestaurantIndex(newIndex);
+      // Scroll to the next set of restaurants
+      scrollViewRef.current?.scrollToOffset({ offset: newIndex * 160, animated: true });
+    }
+  };
 
   const renderRestaurantCard = ({ item }: { item: any }) => (
     <TouchableOpacity 
@@ -204,21 +225,31 @@ export default function HomeScreen() {
             Popular Restaurants
           </StyledText>
           <View style={styles.navigationArrows}>
-            <TouchableOpacity style={styles.arrowButton}>
-              <Ionicons name="chevron-back" size={20} color="#333" />
+            <TouchableOpacity 
+              style={[styles.arrowButton, currentRestaurantIndex === 0 && styles.arrowButtonDisabled]}
+              onPress={handlePreviousRestaurants}
+              disabled={currentRestaurantIndex === 0}
+            >
+              <Ionicons name="chevron-back" size={20} color={currentRestaurantIndex === 0 ? "#CCC" : "#333"} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.arrowButton}>
-              <Ionicons name="chevron-forward" size={20} color="#333" />
+            <TouchableOpacity 
+              style={[styles.arrowButton, currentRestaurantIndex >= Math.max(0, popularRestaurants.length - 2) && styles.arrowButtonDisabled]}
+              onPress={handleNextRestaurants}
+              disabled={currentRestaurantIndex >= Math.max(0, popularRestaurants.length - 2)}
+            >
+              <Ionicons name="chevron-forward" size={20} color={currentRestaurantIndex >= Math.max(0, popularRestaurants.length - 2) ? "#CCC" : "#333"} />
             </TouchableOpacity>
           </View>
         </View>
         <FlatList
+          ref={scrollViewRef}
           data={popularRestaurants}
           renderItem={renderRestaurantCard}
           keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.restaurantsList}
+          scrollEnabled={false}
         />
       </View>
 
@@ -374,6 +405,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  arrowButtonDisabled: {
+    opacity: 0.5,
   },
   restaurantsList: {
     paddingHorizontal: 16,
