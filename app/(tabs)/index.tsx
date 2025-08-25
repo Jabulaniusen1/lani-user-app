@@ -7,6 +7,8 @@ import {
   FlatList,
   Dimensions,
   SafeAreaView,
+  StatusBar,
+  Platform,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,6 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 import { View } from "@/components/Themed";
 import StyledText from "@/components/StyledText";
 import { useCart } from "@/components/CartContext";
+import Colors from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
 
@@ -119,8 +122,9 @@ export default function HomeScreen() {
       setImage(result.assets[0].uri);
     }
   };
-//===========ENDS HERE=================//
+  //===========ENDS HERE=================//
 
+  //======HANDLES BACK BUTTON ON POPULAR RESTURANT======//
   const handlePreviousRestaurants = () => {
     if (currentRestaurantIndex > 0) {
       const newIndex = currentRestaurantIndex - 1;
@@ -132,6 +136,7 @@ export default function HomeScreen() {
       });
     }
   };
+  //===========ENDS HERE=================//
 
   const handleNextRestaurants = () => {
     const maxIndex = Math.max(0, popularRestaurants.length - 2); // Show 2 restaurants at a time
@@ -146,6 +151,7 @@ export default function HomeScreen() {
     }
   };
 
+  //=======FLATLIST RENDERS THE POPULAR RESTURANT SECTION==========//
   const renderRestaurantCard = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.restaurantCard}
@@ -169,6 +175,7 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
+  //=======FLATLIST RENDERS THE TOP MEAL SECTION==========//
   const renderMealCard = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.mealCard}
@@ -230,6 +237,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <StatusBar backgroundColor={Colors.dark.background} />
       {/* Header Section */}
       <SafeAreaView>
         <View style={styles.headerSection}>
@@ -347,16 +355,18 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <FlatList
-            ref={scrollViewRef}
-            data={popularRestaurants}
-            renderItem={renderRestaurantCard}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.restaurantsList}
-            scrollEnabled={false}
-          />
+          <View style={{ paddingVertical: 10, backgroundColor: "#FF6B35" }}>
+            <FlatList
+              ref={scrollViewRef}
+              data={popularRestaurants}
+              renderItem={renderRestaurantCard}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.restaurantsList}
+              scrollEnabled={false}
+            />
+          </View>
         </View>
 
         {/* Top Meals Section */}
@@ -383,11 +393,21 @@ export default function HomeScreen() {
   );
 }
 
+const shadow = Platform.select({
+  android: { elevation: 4 },
+  ios: {
+    shadowColor: Colors.dark.background,
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.65,
+    shadowRadius: 4,
+  },
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f4f5f4",
-    marginTop: 50,
+    marginTop: StatusBar.currentHeight,
   },
   headerSection: {
     flexDirection: "row",
@@ -469,14 +489,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bannerSection: {
+    borderRadius: 12,
     marginHorizontal: 16,
     marginBottom: 24,
     alignItems: "center",
+    overflow: "hidden",
   },
   bannerImage: {
     width: "100%",
-    height: 100,
-    borderRadius: 12,
+    // height: 100,
+    // borderRadius: 12,
   },
   bannerTextContainer: {
     flex: 1,
@@ -524,10 +546,11 @@ const styles = StyleSheet.create({
   },
   restaurantCard: {
     width: 160,
-    backgroundColor: "transparent",
+    backgroundColor: Colors.dark.text,
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
+    ...shadow,
   },
   restaurantImage: {
     width: "100%",
@@ -553,6 +576,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     backgroundColor: "#fff",
+    ...shadow,
   },
   mealImage: {
     width: 80,
@@ -564,6 +588,7 @@ const styles = StyleSheet.create({
   mealInfo: {
     flex: 1,
     justifyContent: "space-between",
+    backgroundColor: "#fff",
   },
   mealName: {
     fontSize: 16,
@@ -584,6 +609,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   mealActions: {
+    backgroundColor: "#fff",
     flexDirection: "row",
     gap: 8,
   },

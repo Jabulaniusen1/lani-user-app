@@ -29,10 +29,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-image-picker",
-      {
-        "photosPermission": "The app accesses your photos to let you share them with your friends."
-      },
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Lani-Eats to access your photos so you can upload a profile picture."
+        }
+      ],
       "expo-router"
     ],
     "experiments": {
