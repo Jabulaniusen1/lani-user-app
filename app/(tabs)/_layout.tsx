@@ -3,6 +3,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -25,6 +26,7 @@ function IoniconsTabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -34,12 +36,12 @@ export default function TabLayout() {
         tabBarShowLabel: true,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#F0F0F0',
+          backgroundColor: '#fff1e8',
+          // borderTopWidth: 5,
+          // borderTopColor: '#F0F0F0',
           paddingTop: 8,
-          paddingBottom: 8,
-          height: 80,
+          height: 70 + insets.bottom,
+          // marginBottom: '8%',
         },
         tabBarLabelStyle: {
           fontSize: 12,

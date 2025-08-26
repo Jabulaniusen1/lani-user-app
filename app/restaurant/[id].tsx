@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions, StatusBar } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    marginTop: 50,
+    marginTop: StatusBar.currentHeight,
   },
   header: {
     flexDirection: 'row',

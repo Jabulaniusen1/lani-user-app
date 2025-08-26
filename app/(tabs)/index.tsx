@@ -15,8 +15,8 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 
 import { View } from "@/components/Themed";
-import StyledText from "@/components/StyledText";
 import { useCart } from "@/components/CartContext";
+import StyledText from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
@@ -237,7 +237,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar backgroundColor={Colors.dark.background} />
+      <StatusBar backgroundColor="#fff1e8" />
       {/* Header Section */}
       <SafeAreaView>
         <View style={styles.headerSection}>
@@ -355,7 +355,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ paddingVertical: 10, backgroundColor: "#FF6B35" }}>
+          <View style={{ paddingVertical: 10, backgroundColor: "#fff1e8" }}>
             <FlatList
               ref={scrollViewRef}
               data={popularRestaurants}
@@ -406,7 +406,7 @@ const shadow = Platform.select({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f5f4",
+    backgroundColor: "#fff1e8",
     marginTop: StatusBar.currentHeight,
   },
   headerSection: {
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginBottom: 24,
-    backgroundColor: "#f4f5f4",
+    backgroundColor: "#fff1e8",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
-    ...shadow,
+    // ...shadow,
   },
   restaurantImage: {
     width: "100%",
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     backgroundColor: "#fff",
-    ...shadow,
+    // ...shadow,
   },
   mealImage: {
     width: 80,

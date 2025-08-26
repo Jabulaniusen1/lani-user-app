@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, TextInput } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, TextInput, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    marginTop: 50,
+    marginTop: StatusBar.currentHeight,
   },
   searchContainer: {
     paddingHorizontal: 16,
