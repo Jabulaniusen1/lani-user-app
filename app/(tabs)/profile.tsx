@@ -12,6 +12,7 @@ import { router } from "expo-router";
 
 import { View } from "@/components/Themed";
 import StyledText from "@/components/StyledText";
+import Colors from "@/constants/Colors";
 
 export default function ProfileScreen() {
   const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
@@ -158,10 +159,11 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Colors.myDefinedColors.background,
     marginTop: StatusBar.currentHeight,
   },
   profileSection: {
+    backgroundColor: Colors.myDefinedColors.background,
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 20,
@@ -189,15 +191,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   menuSection: {
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 16,
+    backgroundColor: Colors.myDefinedColors.white,
+    // marginHorizontal: 16,
     borderRadius: 16,
     paddingVertical: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   menuItem: {
     flexDirection: "row",

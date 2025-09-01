@@ -9,102 +9,109 @@ import {
   SafeAreaView,
   StatusBar,
   Platform,
+  View,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 
-import { View } from "@/components/Themed";
+// import { View } from "@/components/Themed";
 import { useCart } from "@/components/CartContext";
 import StyledText from "@/components/StyledText";
 import Colors from "@/constants/Colors";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const { width } = Dimensions.get("window");
 
 // Dummy data for restaurants
-const popularRestaurants = [
-  {
-    id: "1",
-    name: "Eni Stores",
-    location: "Nsikak Eduok",
-    image: require("@/assets/images/eni-stores.png"),
-    rating: 4.5,
-    reviews: 1234,
-    deliveryTime: "25-30 min",
-  },
-  {
-    id: "2",
-    name: "Kilimanjaro",
-    location: "Ikot Ekpene Road",
-    image: require("@/assets/images/kilimajaro.png"),
-    rating: 4.3,
-    reviews: 856,
-    deliveryTime: "20-25 min",
-  },
-  {
-    id: "3",
-    name: "Chicken Republic",
-    location: "Ikot Ekpene Road",
-    image: require("@/assets/images/chicken-republic.png"),
-    rating: 4.7,
-    reviews: 2103,
-    deliveryTime: "15-20 min",
-  },
-  {
-    id: "4",
-    name: "Pizza Palace",
-    location: "Main Street",
-    image: require("@/assets/images/laanieats-logo.png"), // Keep logo for Pizza Palace since no specific image
-    rating: 4.2,
-    reviews: 567,
-    deliveryTime: "30-35 min",
-  },
-];
+// const popularRestaurants = [
+//   {
+//     id: "1",
+//     name: "Eni Stores",
+//     location: "Nsikak Eduok",
+//     image: require("../../assets/images/eni-stores.png"),
+//     rating: 4.5,
+//     reviews: 1234,
+//     deliveryTime: "25-30 min",
+//   },
+//   {
+//     id: "2",
+//     name: "Kilimanjaro",
+//     location: "Ikot Ekpene Road",
+//     image: require("../../assets/images/kilimajaro.png"),
+//     rating: 4.3,
+//     reviews: 856,
+//     deliveryTime: "20-25 min",
+//   },
+//   {
+//     id: "3",
+//     name: "Chicken Republic",
+//     location: "Ikot Ekpene Road",
+//     image: require("../../assets/images/chicken-republic.png"),
+//     rating: 4.7,
+//     reviews: 2103,
+//     deliveryTime: "15-20 min",
+//   },
+//   {
+//     id: "4",
+//     name: "Pizza Palace",
+//     location: "Main Street",
+//     image: require("../../assets/images/laanieats-logo.png"), // Keep logo for Pizza Palace since no specific image
+//     rating: 4.2,
+//     reviews: 567,
+//     deliveryTime: "30-35 min",
+//   },
+// ];
 
 // Dummy data for top meals
-const topMeals = [
-  {
-    id: "1",
-    name: "Shawarma & Coke",
-    description:
-      "Spicy beef or chicken shawarma wrapped fresh, served with ice-cold Coke.",
-    price: "₦2,500",
-    image: require("@/assets/images/shawarma-and-coke.png"),
-    restaurant: "Kilimanjaro",
-  },
-  {
-    id: "2",
-    name: "Jellof Rice & Plantain",
-    description:
-      "Naija-style jollof rice with crispy, golden plantain slices. Pure comfort food.",
-    price: "₦2,200",
-    image: require("@/assets/images/jellof-rice.png"),
-    restaurant: "Eni Stores",
-  },
-  {
-    id: "3",
-    name: "Chicken & Chips",
-    description: "Crispy fried chicken with golden fries and special sauce.",
-    price: "₦3,000",
-    image: require("@/assets/images/laanieats-logo.png"), // Keep logo since no specific image exists
-    restaurant: "Chicken Republic",
-  },
-  {
-    id: "4",
-    name: "Okro Soup & Garri",
-    description:
-      "Spicy Nigerian okro soup with assorted meat and vegetables, served with garri.",
-    price: "₦1,800",
-    image: require("@/assets/images/okra-soup.png"),
-    restaurant: "Eni Stores",
-  },
-];
+// const topMeals = [
+//   {
+//     id: "1",
+//     name: "Shawarma & Coke",
+//     description:
+//       "Spicy beef or chicken shawarma wrapped fresh, served with ice-cold Coke.",
+//     price: "₦2,500",
+//     image: require("@/assets/images/shawarma-and-coke.png"),
+//     restaurant: "Kilimanjaro",
+//   },
+//   {
+//     id: "2",
+//     name: "Jellof Rice & Plantain",
+//     description:
+//       "Naija-style jollof rice with crispy, golden plantain slices. Pure comfort food.",
+//     price: "₦2,200",
+//     image: require("@/assets/images/jellof-rice.png"),
+//     restaurant: "Eni Stores",
+//   },
+//   {
+//     id: "3",
+//     name: "Chicken & Chips",
+//     description: "Crispy fried chicken with golden fries and special sauce.",
+//     price: "₦3,000",
+//     image: require("@/assets/images/laanieats-logo.png"), // Keep logo since no specific image exists
+//     restaurant: "Chicken Republic",
+//   },
+//   {
+//     id: "4",
+//     name: "Okro Soup & Garri",
+//     description:
+//       "Spicy Nigerian okro soup with assorted meat and vegetables, served with garri.",
+//     price: "₦1,800",
+//     image: require("@/assets/images/okra-soup.png"),
+//     restaurant: "Eni Stores",
+//   },
+// ];
 
 export default function HomeScreen() {
   const { addItem, state } = useCart();
   const scrollViewRef = React.useRef<FlatList>(null);
   const [currentRestaurantIndex, setCurrentRestaurantIndex] = React.useState(0);
   const [image, setImage] = useState<string | null>(null);
+
+  const popularRestaurants = useSelector((state: RootState) => state.eats.popularRestaurants);
+  const topMeals = useSelector((state: RootState) => state.eats.topMeal);
+  
 
   //=====THIS FUNCTION ALLOWS A USER CHOOSE A PHOTO FROM THE GALLERY=====//
   const pickImage = async () => {
@@ -155,7 +162,14 @@ export default function HomeScreen() {
   const renderRestaurantCard = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.restaurantCard}
-      onPress={() => router.push(`/restaurant/${item.id}`)}
+      onPress={() =>
+        router.push({
+          pathname: "/restaurant/[id]",
+          params: {
+            id: item.id,
+          },
+        })
+      }
     >
       <Image source={item.image} style={styles.restaurantImage} />
       <StyledText
@@ -237,7 +251,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar backgroundColor="#fff1e8" />
+      <StatusBar backgroundColor={Colors.myDefinedColors.background} />
       {/* Header Section */}
       <SafeAreaView>
         <View style={styles.headerSection}>
@@ -355,7 +369,12 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ paddingVertical: 10, backgroundColor: "#fff1e8" }}>
+          <View
+            style={{
+              paddingVertical: 10,
+              backgroundColor: Colors.myDefinedColors.background,
+            }}
+          >
             <FlatList
               ref={scrollViewRef}
               data={popularRestaurants}
@@ -406,7 +425,7 @@ const shadow = Platform.select({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff1e8",
+    backgroundColor: Colors.myDefinedColors.background,
     marginTop: StatusBar.currentHeight,
   },
   headerSection: {
@@ -510,7 +529,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginBottom: 24,
-    backgroundColor: "#fff1e8",
+    backgroundColor: Colors.myDefinedColors.background,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -518,7 +537,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: "transparent",
+    backgroundColor: Colors.myDefinedColors.background,
   },
   sectionTitle: {
     fontSize: 18,
@@ -546,7 +565,7 @@ const styles = StyleSheet.create({
   },
   restaurantCard: {
     width: 160,
-    backgroundColor: Colors.dark.text,
+    backgroundColor: Colors.myDefinedColors.white,
     borderRadius: 12,
     padding: 12,
     marginRight: 12,

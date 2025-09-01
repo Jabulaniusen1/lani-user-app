@@ -36,12 +36,9 @@ export default function TabLayout() {
         tabBarShowLabel: true,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#fff1e8',
-          // borderTopWidth: 5,
-          // borderTopColor: '#F0F0F0',
-          paddingTop: 8,
-          height: 70 + insets.bottom,
-          // marginBottom: '8%',
+          backgroundColor: Colors.myDefinedColors.tabBar,
+          borderTopColor: '#fff1e8', //works for iOS
+          borderRadius: 10,
         },
         tabBarLabelStyle: {
           fontSize: 12,

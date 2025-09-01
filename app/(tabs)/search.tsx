@@ -210,10 +210,11 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#fff1e8",
     marginTop: StatusBar.currentHeight,
   },
   header: {
+    backgroundColor: "#fff1e8",
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 20,
@@ -224,6 +225,7 @@ const styles = StyleSheet.create({
     color: "#1A1A1A",
   },
   searchContainer: {
+    backgroundColor: "#fff1e8",
     paddingHorizontal: 16,
     marginBottom: 24,
   },
@@ -244,17 +246,20 @@ const styles = StyleSheet.create({
     color: "#1A1A1A",
   },
   popularSearchesContainer: {
+    backgroundColor: "#fff1e8",
     marginBottom: 24,
+    paddingBottom: 5,
+    marginLeft: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1A1A1A",
     marginBottom: 12,
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
   },
   popularSearchesList: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
   },
   popularSearchChip: {
     backgroundColor: "#F5F5F5",
@@ -268,6 +273,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   searchResultsContainer: {
+    backgroundColor: "#fff1e8",
     paddingHorizontal: 16,
   },
   searchResultCard: {
@@ -292,6 +298,7 @@ const styles = StyleSheet.create({
   searchResultInfo: {
     flex: 1,
     justifyContent: "space-between",
+    backgroundColor: "white",
   },
   searchResultName: {
     fontSize: 16,
