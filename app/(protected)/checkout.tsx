@@ -1,76 +1,67 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, TextInput, View as RNView, SafeAreaView } from 'react-native';
-import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  TextInput,
+  View,
+  Text,
+  SafeAreaView,
+} from "react-native";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Color } from "@/constants/Colour";
 
-import { View } from '@/components/Themed';
-import StyledText from '@/components/StyledText';
+// import { View } from '@/components/Themed';
+// import StyledText from "@/components/StyledText";
 
 export default function CheckoutScreen() {
-  const [fullName, setFullName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [houseAddress, setHouseAddress] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [houseAddress, setHouseAddress] = useState("");
 
   const handleCheckout = () => {
     // Implement checkout functionality
-    console.log('Proceeding to checkout with:', { fullName, phoneNumber, houseAddress });
+    console.log("Proceeding to checkout with:", {
+      fullName,
+      phoneNumber,
+      houseAddress,
+    });
     // You can navigate to payment or order confirmation here
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <StyledText variant="title" weight="bold" style={styles.headerTitle}>
-          Checkout
-        </StyledText>
+        </Pressable>
+        <Text> Checkout</Text>
         <View style={styles.placeholder} />
       </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Current Address Section */}
         <View style={styles.currentAddressCard}>
           <View style={styles.addressHeader}>
-            <StyledText variant="subtitle" weight="bold" style={styles.addressTitle}>
-              Home
-            </StyledText>
-            <TouchableOpacity style={styles.editButton}>
+            <Text style={styles.addressTitle}>Home</Text>
+            <Pressable style={styles.editButton}>
               <Ionicons name="create-outline" size={20} color="#FF6B35" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
-          
           <View style={styles.contactInfo}>
             <View style={styles.contactRow}>
               <Ionicons name="call-outline" size={16} color="#FF6B35" />
-              <StyledText variant="body" weight="regular" style={styles.contactText}>
-                0812222222
-              </StyledText>
+              <Text style={styles.contactText}>0812222222</Text>
             </View>
             <View style={styles.contactRow}>
               <Ionicons name="location-outline" size={16} color="#FF6B35" />
-              <StyledText variant="body" weight="regular" style={styles.contactText}>
-                15 Nsikak Eduok, Uyo
-              </StyledText>
+              <Text style={styles.contactText}>15 Nsikak Eduok, Uyo</Text>
             </View>
           </View>
         </View>
-
-        {/* Add New Address Section */}
         <View style={styles.newAddressSection}>
-          <StyledText variant="subtitle" weight="bold" style={styles.sectionTitle}>
-            Add a New Address
-          </StyledText>
-          
+          <Text style={styles.sectionTitle}>Add a New Address</Text>
           <View style={styles.inputGroup}>
-            <StyledText variant="body" weight="medium" style={styles.inputLabel}>
-              Full name
-            </StyledText>
+            <Text style={styles.inputLabel}>Full name</Text>
             <TextInput
               style={styles.textInput}
               placeholder="Full name here"
@@ -79,11 +70,8 @@ export default function CheckoutScreen() {
               onChangeText={setFullName}
             />
           </View>
-
           <View style={styles.inputGroup}>
-            <StyledText variant="body" weight="medium" style={styles.inputLabel}>
-              Phone number
-            </StyledText>
+            <Text style={styles.inputLabel}>Phone number</Text>
             <TextInput
               style={styles.textInput}
               placeholder="+234 *******"
@@ -93,11 +81,8 @@ export default function CheckoutScreen() {
               keyboardType="phone-pad"
             />
           </View>
-
           <View style={styles.inputGroup}>
-            <StyledText variant="body" weight="medium" style={styles.inputLabel}>
-              House Address
-            </StyledText>
+            <Text>House Address</Text>
             <TextInput
               style={styles.textInput}
               placeholder="Road, Area, Building name"
@@ -109,17 +94,10 @@ export default function CheckoutScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Checkout Button */}
       <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={styles.checkoutButton}
-          onPress={handleCheckout}
-        >
-          <StyledText variant="button" weight="semibold" style={styles.checkoutButtonText}>
-            Checkout
-          </StyledText>
-        </TouchableOpacity>
+        <Pressable style={styles.checkoutButton} onPress={handleCheckout}>
+          <Text style={styles.checkoutButtonText}>Checkout</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -128,30 +106,30 @@ export default function CheckoutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f4f5f4',
+    backgroundColor: Color.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     marginTop: 50,
   },
   backButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontWeight: "600",
+    color: "#1A1A1A",
   },
   placeholder: {
     width: 36,
@@ -162,88 +140,88 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   currentAddressCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
   },
   addressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   addressTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: "bold",
+    color: "#1A1A1A",
   },
   editButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
   },
   contactInfo: {
     gap: 12,
   },
   contactRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   contactText: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: "#1A1A1A",
     marginLeft: 8,
   },
   newAddressSection: {
     marginBottom: 24,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: "bold",
+    color: "#1A1A1A",
     marginBottom: 20,
   },
   inputGroup: {
     marginBottom: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   inputLabel: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#1A1A1A',
+    fontWeight: "500",
+    color: "#1A1A1A",
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: '#FF6B35',
+    borderColor: "#FF6B35",
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1A1A1A',
+    color: "#1A1A1A",
   },
   bottomSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: "#E0E0E0",
   },
   checkoutButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
     paddingVertical: 16,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   checkoutButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

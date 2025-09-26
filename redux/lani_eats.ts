@@ -1,7 +1,30 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { ImageSourcePropType } from "react-native";
 
-const initialState = {
-  popularRestaurants: [
+interface PopularResturant {
+  id: string;
+  name: string;
+  location: string;
+  image: ImageSourcePropType;
+  rating: number;
+  reviews: number;
+  deliveryTime: string;
+}
+interface TopMeal {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  image: ImageSourcePropType;
+  restaurant: string;
+}
+
+interface EatState {
+  popularResturants: PopularResturant[];
+  topMeal: TopMeal[];
+}
+const initialState: EatState = {
+  popularResturants: [
     {
       id: "1",
       name: "Eni Stores",
@@ -39,6 +62,7 @@ const initialState = {
       deliveryTime: "30-35 min",
     },
   ],
+
   topMeal: [
     {
       id: "1",

@@ -1,4 +1,3 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
   DefaultTheme,
@@ -14,24 +13,27 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { CartProvider } from "@/components/CartContext";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
-
-export { ErrorBoundary } from "expo-router";
-
-export const unstable_settings = {
-  initialRouteName: "home",
-};
+import { SessionProvider } from "../auth/ctx";
+import { SplashScreenController } from "../auth/splash";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function Root() {
+  return (
+    <SessionProvider>
+      <SplashScreenController />
+      <RootLayout />
+    </SessionProvider>
+  );
+}
+
+function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     BricolageGrotesque: require("../assets/fonts/BricolageGrotesque_24pt-Bold.ttf"),
-    ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -68,8 +70,7 @@ function RootLayoutNav() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="cart" options={{ headerShown: false }} />
-            <Stack.Screen name="checkout" options={{ headerShown: false }} />
+            <Stack.Screen name="(protected)" options={{ headerShown: false }} />
           </Stack>
         </ThemeProvider>
       </CartProvider>

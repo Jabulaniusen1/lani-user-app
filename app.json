@@ -39,7 +39,9 @@
           "photosPermission": "Allow Lani-Eats to access your photos so you can upload a profile picture."
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-font",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

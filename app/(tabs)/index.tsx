@@ -2,27 +2,23 @@ import React, { useState } from "react";
 import {
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Image,
   FlatList,
-  Dimensions,
   SafeAreaView,
   StatusBar,
   Platform,
   View,
+  Text,
+  Pressable,
+  ImageSourcePropType,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
-
-// import { View } from "@/components/Themed";
 import { useCart } from "@/components/CartContext";
-import StyledText from "@/components/StyledText";
-import Colors from "@/constants/Colors";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-
-const { width } = Dimensions.get("window");
+import { Color } from "../../constants/Colour";
 
 // Dummy data for restaurants
 // const popularRestaurants = [
@@ -103,15 +99,38 @@ const { width } = Dimensions.get("window");
 //   },
 // ];
 
+interface PopularResturant {
+  id: string;
+  name: string;
+  location: string;
+  image: ImageSourcePropType;
+  rating: number;
+  reviews: number;
+  deliveryTime: string;
+}
+
+interface TopMeal {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  image: ImageSourcePropType;
+  restaurant: string;
+}
+
 export default function HomeScreen() {
   const { addItem, state } = useCart();
   const scrollViewRef = React.useRef<FlatList>(null);
-  const [currentRestaurantIndex, setCurrentRestaurantIndex] = React.useState(0);
+  const [currentRestaurantIndex, setCurrentRestaurantIndex] =
+    useState<number>(0);
   const [image, setImage] = useState<string | null>(null);
 
-  const popularRestaurants = useSelector((state: RootState) => state.eats.popularRestaurants);
+  //=============================REDUX STATE===============================//
+  const popularRestaurants = useSelector(
+    (state: RootState) => state.eats.popularResturants
+  );
   const topMeals = useSelector((state: RootState) => state.eats.topMeal);
-  
+  //===============================END==================================//
 
   //=====THIS FUNCTION ALLOWS A USER CHOOSE A PHOTO FROM THE GALLERY=====//
   const pickImage = async () => {
@@ -159,71 +178,45 @@ export default function HomeScreen() {
   };
 
   //=======FLATLIST RENDERS THE POPULAR RESTURANT SECTION==========//
-  const renderRestaurantCard = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={styles.restaurantCard}
-      onPress={() =>
-        router.push({
-          pathname: "/restaurant/[id]",
-          params: {
-            id: item.id,
-          },
-        })
-      }
-    >
-      <Image source={item.image} style={styles.restaurantImage} />
-      <StyledText
-        variant="body"
-        weight="semibold"
-        style={styles.restaurantName}
+  function renderRestaurantCard({ item }: { item: PopularResturant }) {
+    return (
+      <Pressable
+        style={styles.restaurantCard}
+        onPress={() =>
+          router.push({
+            pathname: "/restaurant/[id]",
+            params: {
+              id: item.id,
+            },
+          })
+        }
       >
-        {item.name}
-      </StyledText>
-      <StyledText
-        variant="caption"
-        weight="regular"
-        style={styles.restaurantLocation}
-      >
-        {item.location}
-      </StyledText>
-    </TouchableOpacity>
-  );
+        <Image source={item.image} style={styles.restaurantImage} />
+        <Text style={styles.restaurantName}>{item.name}</Text>
+        <Text style={styles.restaurantLocation}>{item.location}</Text>
+      </Pressable>
+    );
+  }
 
   //=======FLATLIST RENDERS THE TOP MEAL SECTION==========//
-  const renderMealCard = ({ item }: { item: any }) => (
-    <TouchableOpacity
+  const renderMealCard = ({ item }: { item: TopMeal }) => (
+    <Pressable
       style={styles.mealCard}
       onPress={() => router.push(`/meal/${item.id}`)}
     >
       <Image source={item.image} style={styles.mealImage} />
       <View style={styles.mealInfo}>
-        <StyledText variant="subtitle" weight="bold" style={styles.mealName}>
-          {item.name}
-        </StyledText>
-        <StyledText
-          variant="body"
-          weight="regular"
-          style={styles.mealDescription}
-        >
-          {item.description}
-        </StyledText>
-        <StyledText variant="body" weight="semibold" style={styles.mealPrice}>
-          {item.price}
-        </StyledText>
+        <Text style={styles.mealName}>{item.name}</Text>
+        <Text style={styles.mealDescription}>{item.description}</Text>
+        <Text style={styles.mealPrice}>{item.price}</Text>
         <View style={styles.mealActions}>
-          <TouchableOpacity
+          <Pressable
             style={styles.orderNowButton}
             onPress={() => router.push(`/meal/${item.id}`)}
           >
-            <StyledText
-              variant="button"
-              weight="semibold"
-              style={styles.orderNowButtonText}
-            >
-              Order now
-            </StyledText>
-          </TouchableOpacity>
-          <TouchableOpacity
+            <Text style={styles.orderNowButtonText}>Order now</Text>
+          </Pressable>
+          <Pressable
             style={styles.addToCartButton}
             onPress={() => {
               addItem({
@@ -236,46 +229,27 @@ export default function HomeScreen() {
               });
             }}
           >
-            <StyledText
-              variant="button"
-              weight="semibold"
-              style={styles.addToCartButtonText}
-            >
-              Add to Cart
-            </StyledText>
-          </TouchableOpacity>
+            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+          </Pressable>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar backgroundColor={Colors.myDefinedColors.background} />
-      {/* Header Section */}
+      <StatusBar backgroundColor={Color.background} />
       <SafeAreaView>
         <View style={styles.headerSection}>
           <View style={styles.welcomeSection}>
-            <StyledText
-              variant="title"
-              weight="bold"
-              style={styles.welcomeText}
-            >
-              Welcome, Annie
-            </StyledText>
+            <Text style={styles.welcomeText}>Welcome, Annie</Text>
             <View style={styles.locationSection}>
               <Ionicons name="location" size={16} color="#4CAF50" />
-              <StyledText
-                variant="body"
-                weight="medium"
-                style={styles.locationText}
-              >
-                Ewet Housing Estate
-              </StyledText>
+              <Text style={styles.locationText}>Ewet Housing Estate</Text>
             </View>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.profileButton} onPress={pickImage}>
+            <Pressable style={styles.profileButton} onPress={pickImage}>
               {image ? (
                 <Image source={{ uri: image }} style={styles.profileImage} />
               ) : (
@@ -286,50 +260,34 @@ export default function HomeScreen() {
                   style={styles.profileImage}
                 />
               )}
-            </TouchableOpacity>
-            <TouchableOpacity
+            </Pressable>
+            <Pressable
               style={styles.cartButton}
-              onPress={() => router.push("/cart")}
+              onPress={() => router.push("/(protected)/cart")}
             >
               <Ionicons name="cart" size={24} color="#333" />
-              {state.totalItems > 0 && (
+              {/* {state.totalItems > 0 && (
                 <View style={styles.cartBadge}>
-                  <StyledText
-                    variant="caption"
-                    weight="bold"
-                    style={styles.cartBadgeText}
-                  >
-                    {state.totalItems}
-                  </StyledText>
+                  <Text style={styles.cartBadgeText}>{state.totalItems}</Text>
                 </View>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.notificationButton}>
+              )} */}
+            </Pressable>
+            <Pressable style={styles.notificationButton}>
               <Ionicons name="notifications" size={24} color="#333" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
-
-        {/* Banner Section */}
         <View style={styles.bannerSection}>
           <Image
-            source={require("@/assets/images/what-are-you-eating.png")}
+            source={require("../../assets/images/what-are-you-eating.png")}
             style={styles.bannerImage}
           />
         </View>
-
-        {/* Popular Restaurants Section */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <StyledText
-              variant="subtitle"
-              weight="bold"
-              style={styles.sectionTitle}
-            >
-              Popular Restaurants
-            </StyledText>
+            <Text style={styles.sectionTitle}>Popular Restaurants</Text>
             <View style={styles.navigationArrows}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.arrowButton,
                   currentRestaurantIndex === 0 && styles.arrowButtonDisabled,
@@ -342,8 +300,8 @@ export default function HomeScreen() {
                   size={20}
                   color={currentRestaurantIndex === 0 ? "#CCC" : "#333"}
                 />
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.arrowButton,
                   currentRestaurantIndex >=
@@ -366,13 +324,13 @@ export default function HomeScreen() {
                       : "#333"
                   }
                 />
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
           <View
             style={{
               paddingVertical: 10,
-              backgroundColor: Colors.myDefinedColors.background,
+              backgroundColor: Color.background,
             }}
           >
             <FlatList
@@ -387,17 +345,9 @@ export default function HomeScreen() {
             />
           </View>
         </View>
-
-        {/* Top Meals Section */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <StyledText
-              variant="subtitle"
-              weight="bold"
-              style={styles.sectionTitle}
-            >
-              Top Meals
-            </StyledText>
+            <Text style={styles.sectionTitle}>Top Meals</Text>
           </View>
           <FlatList
             data={topMeals}
@@ -415,7 +365,7 @@ export default function HomeScreen() {
 const shadow = Platform.select({
   android: { elevation: 4 },
   ios: {
-    shadowColor: Colors.dark.background,
+    shadowColor: Color.black,
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.65,
     shadowRadius: 4,
@@ -425,7 +375,7 @@ const shadow = Platform.select({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.myDefinedColors.background,
+    backgroundColor: Color.background,
     marginTop: StatusBar.currentHeight,
   },
   headerSection: {
@@ -442,9 +392,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   welcomeText: {
-    fontSize: 20,
+    fontSize: 18,
+    fontFamily: "Bricolage-24pt-bold",
     fontWeight: "bold",
-    color: "#1A1A1A",
+    color: Color.black,
     marginBottom: 6,
   },
   locationSection: {
@@ -529,7 +480,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginBottom: 24,
-    backgroundColor: Colors.myDefinedColors.background,
+    backgroundColor: Color.background,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -537,9 +488,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: Colors.myDefinedColors.background,
+    backgroundColor: Color.background,
   },
   sectionTitle: {
+    fontFamily: "Bricolage-24pt-bold",
     fontSize: 18,
     fontWeight: "bold",
     color: "#1A1A1A",
@@ -565,11 +517,12 @@ const styles = StyleSheet.create({
   },
   restaurantCard: {
     width: 160,
-    backgroundColor: Colors.myDefinedColors.white,
+    backgroundColor: Color.white,
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
-    // ...shadow,
+    marginBottom: 5,
+    ...shadow,
   },
   restaurantImage: {
     width: "100%",
@@ -595,7 +548,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     backgroundColor: "#fff",
-    // ...shadow,
+    ...shadow,
   },
   mealImage: {
     width: 80,
