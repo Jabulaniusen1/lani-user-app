@@ -1,44 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Alert,
-} from 'react-native';
-import { router } from 'expo-router';
-import GoogleLogo from '@/components/icons/GoogleLogo';
-import FacebookLogo from '@/components/icons/FacebookLogo';
-import AppleLogo from '@/components/icons/AppleLogo';
+  Pressable,
+  StatusBar,
+} from "react-native";
+import { router } from "expo-router";
+import GoogleLogo from "@/components/icons/GoogleLogo";
+import FacebookLogo from "@/components/icons/FacebookLogo";
+import AppleLogo from "@/components/icons/AppleLogo";
+import { useSession } from "../../auth/ctx";
 
 interface RegistrationFormProps {
-  onContinue: (data: { fullName: string; email: string; phone: string }) => void;
+  onContinue: (data: {
+    fullName: string;
+    email: string;
+    phone: string;
+  }) => void;
 }
 
-export default function RegistrationForm({ onContinue }: RegistrationFormProps) {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+export default function RegistrationForm({
+  onContinue,
+}: RegistrationFormProps) {
+  // SESSION
+  const { register } = useSession();
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // =================
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = "Full name is required";
     }
 
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!isValidEmail(email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!phone.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = "Phone number is required";
     } else if (phone.length < 10) {
-      newErrors.phone = 'Please enter a valid phone number';
+      newErrors.phone = "Please enter a valid phone number";
     }
 
     setErrors(newErrors);
@@ -53,16 +66,19 @@ export default function RegistrationForm({ onContinue }: RegistrationFormProps) 
   const handleContinue = () => {
     if (validateForm()) {
       onContinue({ fullName, email, phone });
+      console.log(true);
+    } else {
+      console.log(false);
     }
   };
 
   const handleContinueAsGuest = () => {
     Alert.alert(
-      'Continue as Guest',
-      'You can browse the app without creating an account. Some features may be limited.',
+      "Continue as Guest",
+      "You can browse the app without creating an account. Some features may be limited.",
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Continue', onPress: () => router.replace('/(tabs)') },
+        { text: "Cancel", style: "cancel" },
+        { text: "Continue", onPress: () => router.replace("/(tabs)") },
       ]
     );
   };
@@ -71,21 +87,19 @@ export default function RegistrationForm({ onContinue }: RegistrationFormProps) 
     Alert.alert(
       `${platform} Login`,
       `${platform} login functionality will be implemented here.`,
-      [{ text: 'OK' }]
+      [{ text: "OK" }]
     );
   };
 
   const handleLogin = () => {
-    router.push('/auth/login');
+    router.push("/auth/login");
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Let's get started</Text>
-      
-      {/* Full Name Field */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Let's know your full name*</Text>
+        <Text style={styles.label}>Let's know your full name</Text>
         <TextInput
           style={styles.input}
           placeholder="Full name here"
@@ -94,12 +108,13 @@ export default function RegistrationForm({ onContinue }: RegistrationFormProps) 
           onChangeText={setFullName}
           autoCapitalize="words"
         />
-        {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+        {errors.fullName && (
+          <Text style={styles.errorText}>{errors.fullName}</Text>
+        )}
       </View>
 
-      {/* Email Field */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email Address*</Text>
+        <Text style={styles.label}>Email Address</Text>
         <TextInput
           style={styles.input}
           placeholder="example@email.com"
@@ -110,15 +125,14 @@ export default function RegistrationForm({ onContinue }: RegistrationFormProps) 
           autoCapitalize="none"
         />
         {errors.email && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>Please enter a valid email address</Text>
-          </View>
+          <Text style={styles.errorText}>
+            Please enter a valid email address
+          </Text>
         )}
       </View>
 
-      {/* Phone Field */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Phone number*</Text>
+        <Text style={styles.label}>Phone number</Text>
         <TextInput
           style={styles.input}
           placeholder="+234"
@@ -129,54 +143,48 @@ export default function RegistrationForm({ onContinue }: RegistrationFormProps) 
         />
         {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
       </View>
-
-      {/* Continue Button */}
-      <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+      <Pressable style={styles.continueButton} onPress={handleContinue}>
         <Text style={styles.continueButtonText}>Continue</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      {/* Continue as Guest */}
-      <TouchableOpacity style={styles.guestButton} onPress={handleContinueAsGuest}>
+      <Pressable style={styles.guestButton} onPress={handleContinueAsGuest}>
         <Text style={styles.guestButtonText}>Continue as guest</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      {/* Social Login Divider */}
       <View style={styles.dividerContainer}>
         <View style={styles.dividerLine} />
         <Text style={styles.dividerText}>Or continue with</Text>
         <View style={styles.dividerLine} />
       </View>
 
-      {/* Social Login Buttons */}
       <View style={styles.socialContainer}>
-        <TouchableOpacity
+        <Pressable
           style={styles.socialButton}
-          onPress={() => handleSocialLogin('Google')}
+          onPress={() => handleSocialLogin("Google")}
         >
           <GoogleLogo width={24} height={24} />
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.socialButton}
-          onPress={() => handleSocialLogin('Facebook')}
+          onPress={() => handleSocialLogin("Facebook")}
         >
           <FacebookLogo width={24} height={24} />
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.socialButton}
-          onPress={() => handleSocialLogin('Apple')}
+          onPress={() => handleSocialLogin("Apple")}
         >
           <AppleLogo width={24} height={24} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
-      {/* Login Link */}
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Already have an account? </Text>
-        <TouchableOpacity onPress={handleLogin}>
+        <Pressable onPress={handleLogin}>
           <Text style={styles.loginLink}>Log in</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -186,13 +194,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingTop: StatusBar.currentHeight,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#1A1A1A",
+    textAlign: "center",
     marginBottom: 40,
   },
   inputContainer: {
@@ -200,42 +208,42 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontWeight: "600",
+    color: "#1A1A1A",
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#FF6B35',
+    borderColor: "#FF6B35",
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   errorContainer: {
-    backgroundColor: '#FFF3E0',
-    borderColor: '#FF6B35',
+    backgroundColor: "#FFF3E0",
+    borderColor: "#FF6B35",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginTop: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   errorText: {
-    color: '#FF6B35',
+    color: "#FF6B35",
     fontSize: 14,
     marginTop: 4,
   },
   continueButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 16,
-    shadowColor: '#FF6B35',
+    shadowColor: "#FF6B35",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -245,51 +253,51 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   continueButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   guestButton: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 16,
   },
   guestButtonText: {
-    color: '#1A1A1A',
+    color: "#1A1A1A",
     fontSize: 16,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 24,
     marginBottom: 24,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: "#E0E0E0",
   },
   dividerText: {
     marginHorizontal: 16,
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 24,
   },
   socialButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#E0E0E0",
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -299,19 +307,19 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    // marginTop: 40,
   },
   loginText: {
-    color: '#1A1A1A',
+    color: "#1A1A1A",
     fontSize: 16,
   },
   loginLink: {
-    color: '#FF6B35',
+    color: "#FF6B35",
     fontSize: 16,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
 });

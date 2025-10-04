@@ -1,174 +1,222 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  Dimensions,
+  StatusBar,
+} from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
-import { View } from '@/components/Themed';
-import StyledText from '@/components/StyledText';
-import { useCart } from '@/components/CartContext';
+import { View } from "@/components/Themed";
+import StyledText from "@/components/StyledText";
+import { useCart } from "@/components/CartContext";
+import Colors from "@/constants/Colors";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 // Dummy data for restaurants
-const restaurants: Record<string, {
-  id: string;
-  name: string;
-  location: string;
-  image: any;
-  rating: number;
-  reviews: number;
-  deliveryTime: string;
-  description: string;
-}> = {
-  '1': {
-    id: '1',
-    name: 'Eni Stores',
-    location: 'Nsikak Eduok',
-    image: require('@/assets/images/laanieats-logo.png'),
+const restaurants: Record<
+  string,
+  {
+    id: string;
+    name: string;
+    location: string;
+    image: any;
+    rating: number;
+    reviews: number;
+    deliveryTime: string;
+    description: string;
+  }
+> = {
+  "1": {
+    id: "1",
+    name: "Eni Stores",
+    location: "Nsikak Eduok",
+    image: require("@/assets/images/laanieats-logo.png"),
     rating: 4.5,
     reviews: 1234,
-    deliveryTime: '25-30 min',
-    description: 'Authentic Nigerian cuisine with fresh ingredients and traditional recipes.'
+    deliveryTime: "25-30 min",
+    description:
+      "Authentic Nigerian cuisine with fresh ingredients and traditional recipes.",
   },
-  '2': {
-    id: '2',
-    name: 'Kilimanjaro',
-    location: 'Ikot Ekpene Road',
-    image: require('@/assets/images/laanieats-logo.png'),
+  "2": {
+    id: "2",
+    name: "Kilimanjaro",
+    location: "Ikot Ekpene Road",
+    image: require("@/assets/images/laanieats-logo.png"),
     rating: 4.3,
     reviews: 856,
-    deliveryTime: '20-25 min',
-    description: 'Modern African fusion restaurant serving contemporary dishes with local flavors.'
+    deliveryTime: "20-25 min",
+    description:
+      "Modern African fusion restaurant serving contemporary dishes with local flavors.",
   },
-  '3': {
-    id: '3',
-    name: 'Chicken Republic',
-    location: 'Ikot Ekpene Road',
-    image: require('@/assets/images/laanieats-logo.png'),
+  "3": {
+    id: "3",
+    name: "Chicken Republic",
+    location: "Ikot Ekpene Road",
+    image: require("@/assets/images/laanieats-logo.png"),
     rating: 4.7,
     reviews: 2103,
-    deliveryTime: '15-20 min',
-    description: 'Fast-casual dining specializing in grilled chicken and continental dishes.'
+    deliveryTime: "15-20 min",
+    description:
+      "Fast-casual dining specializing in grilled chicken and continental dishes.",
   },
-  '4': {
-    id: '4',
-    name: 'Pizza Palace',
-    location: 'Main Street',
-    image: require('@/assets/images/laanieats-logo.png'),
+  "4": {
+    id: "4",
+    name: "Pizza Palace",
+    location: "Main Street",
+    image: require("@/assets/images/laanieats-logo.png"),
     rating: 4.2,
     reviews: 567,
-    deliveryTime: '30-35 min',
-    description: 'Italian-inspired pizzeria with wood-fired ovens and fresh toppings.'
-  }
+    deliveryTime: "30-35 min",
+    description:
+      "Italian-inspired pizzeria with wood-fired ovens and fresh toppings.",
+  },
 };
 
 // Dummy data for restaurant meals
-const restaurantMeals: Record<string, Array<{
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  image: any;
-  category: string;
-}>> = {
-  '1': [ // Eni Stores meals
+const restaurantMeals: Record<
+  string,
+  Array<{
+    id: string;
+    name: string;
+    description: string;
+    price: string;
+    image: any;
+    category: string;
+  }>
+> = {
+  "1": [
+    // Eni Stores meals
     {
-      id: '1',
-      name: 'Okro soup & Garri',
-      description: 'Thick okro soup with fresh fish, served hot with smooth white garri.',
-      price: '₦2,800',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Soups'
+      id: "1",
+      name: "Okro soup & Garri",
+      description:
+        "Thick okro soup with fresh fish, served hot with smooth white garri.",
+      price: "₦2,800",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Soups",
     },
     {
-      id: '2',
-      name: 'Jollof Rice & Plantain',
-      description: 'Naija-style jollof rice with crispy, golden plantain slices. Pure comfort food.',
-      price: '₦2,200',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Rice & Pasta'
+      id: "2",
+      name: "Jollof Rice & Plantain",
+      description:
+        "Naija-style jollof rice with crispy, golden plantain slices. Pure comfort food.",
+      price: "₦2,200",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Rice & Pasta",
     },
     {
-      id: '3',
-      name: 'Pepper Soup',
-      description: 'Spicy Nigerian pepper soup with assorted meat and vegetables.',
-      price: '₦1,800',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Soups'
+      id: "3",
+      name: "Pepper Soup",
+      description:
+        "Spicy Nigerian pepper soup with assorted meat and vegetables.",
+      price: "₦1,800",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Soups",
     },
     {
-      id: '4',
-      name: 'Pounded Yam & Efo Riro',
-      description: 'Smooth pounded yam served with rich vegetable soup and choice meat.',
-      price: '₦3,200',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Soups'
-    }
+      id: "4",
+      name: "Pounded Yam & Efo Riro",
+      description:
+        "Smooth pounded yam served with rich vegetable soup and choice meat.",
+      price: "₦3,200",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Soups",
+    },
   ],
-  '2': [ // Kilimanjaro meals
+  "2": [
+    // Kilimanjaro meals
     {
-      id: '5',
-      name: 'Shawarma & Coke',
-      description: 'Spicy beef or chicken shawarma wrapped fresh, served with ice-cold Coke.',
-      price: '₦2,500',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Snacks'
+      id: "5",
+      name: "Shawarma & Coke",
+      description:
+        "Spicy beef or chicken shawarma wrapped fresh, served with ice-cold Coke.",
+      price: "₦2,500",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Snacks",
     },
     {
-      id: '6',
-      name: 'Grilled Fish & Chips',
-      description: 'Fresh grilled fish with crispy chips and tartar sauce.',
-      price: '₦3,500',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Main Course'
-    }
+      id: "6",
+      name: "Grilled Fish & Chips",
+      description: "Fresh grilled fish with crispy chips and tartar sauce.",
+      price: "₦3,500",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Main Course",
+    },
   ],
-  '3': [ // Chicken Republic meals
+  "3": [
+    // Chicken Republic meals
     {
-      id: '7',
-      name: 'Chicken & Chips',
-      description: 'Crispy fried chicken with golden fries and special sauce.',
-      price: '₦3,000',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Main Course'
+      id: "7",
+      name: "Chicken & Chips",
+      description: "Crispy fried chicken with golden fries and special sauce.",
+      price: "₦3,000",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Main Course",
     },
     {
-      id: '8',
-      name: 'Grilled Chicken Salad',
-      description: 'Fresh mixed greens with grilled chicken breast and vinaigrette.',
-      price: '₦2,800',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Salads'
-    }
+      id: "8",
+      name: "Grilled Chicken Salad",
+      description:
+        "Fresh mixed greens with grilled chicken breast and vinaigrette.",
+      price: "₦2,800",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Salads",
+    },
   ],
-  '4': [ // Pizza Palace meals
+  "4": [
+    // Pizza Palace meals
     {
-      id: '9',
-      name: 'Margherita Pizza',
-      description: 'Classic tomato sauce with mozzarella cheese and fresh basil.',
-      price: '₦4,500',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Pizza'
+      id: "9",
+      name: "Margherita Pizza",
+      description:
+        "Classic tomato sauce with mozzarella cheese and fresh basil.",
+      price: "₦4,500",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Pizza",
     },
     {
-      id: '10',
-      name: 'Pepperoni Pizza',
-      description: 'Spicy pepperoni with melted cheese on crispy crust.',
-      price: '₦5,200',
-      image: require('@/assets/images/laanieats-logo.png'),
-      category: 'Pizza'
-    }
-  ]
+      id: "10",
+      name: "Pepperoni Pizza",
+      description: "Spicy pepperoni with melted cheese on crispy crust.",
+      price: "₦5,200",
+      image: require("@/assets/images/laanieats-logo.png"),
+      category: "Pizza",
+    },
+  ],
 };
 
-const categories = ['All', 'Soups', 'Snacks', 'Rice & Pasta', 'Main Course', 'Salads', 'Pizza'];
+const categories = [
+  "All",
+  "Soups",
+  "Snacks",
+  "Rice & Pasta",
+  "Main Course",
+  "Salads",
+  "Pizza",
+];
 
 export default function RestaurantScreen() {
   const { id } = useLocalSearchParams();
   const restaurant = restaurants[id as string];
   const meals = restaurantMeals[id as string] || [];
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const { addItem } = useCart();
+
+  //===========GET IMAGE FOR THE PARTICULAR ID================//
+  const popularRestaurants = useSelector(
+    (state: RootState) => state.eats.popularRestaurants
+  );
+  const clickedResturant = popularRestaurants.filter((val) => val.id === id);
+  // console.log(popularRestaurants[0]);
+  //===============END========================================//
 
   if (!restaurant) {
     return (
@@ -178,12 +226,15 @@ export default function RestaurantScreen() {
     );
   }
 
-  const filteredMeals = selectedCategory === 'All' 
-    ? meals 
-    : meals.filter(meal => meal.category === selectedCategory);
+  //=============
+  const filteredMeals =
+    selectedCategory === "All"
+      ? meals
+      : meals.filter((meal) => meal.category === selectedCategory);
 
-  const renderMealCard = ({ item }: { item: typeof meals[0] }) => (
-    <TouchableOpacity 
+  const renderMealCard = ({ item }: { item: (typeof meals)[0] }) => (
+    // console.log(item.image, item.id),
+    <TouchableOpacity
       style={styles.mealCard}
       onPress={() => router.push(`/meal/${item.id}`)}
     >
@@ -192,22 +243,30 @@ export default function RestaurantScreen() {
         <StyledText variant="subtitle" weight="bold" style={styles.mealName}>
           {item.name}
         </StyledText>
-        <StyledText variant="body" weight="regular" style={styles.mealDescription}>
+        <StyledText
+          variant="body"
+          weight="regular"
+          style={styles.mealDescription}
+        >
           {item.description}
         </StyledText>
         <StyledText variant="body" weight="semibold" style={styles.mealPrice}>
           {item.price}
         </StyledText>
         <View style={styles.mealActions}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.orderNowButton}
             onPress={() => router.push(`/meal/${item.id}`)}
           >
-            <StyledText variant="button" weight="semibold" style={styles.orderNowButtonText}>
+            <StyledText
+              variant="button"
+              weight="semibold"
+              style={styles.orderNowButtonText}
+            >
               Order now
             </StyledText>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.addToCartButton}
             onPress={() => {
               addItem({
@@ -216,11 +275,15 @@ export default function RestaurantScreen() {
                 price: item.price,
                 image: item.image,
                 restaurant: restaurant.name,
-                quantity: 1
+                quantity: 1,
               });
             }}
           >
-            <StyledText variant="button" weight="semibold" style={styles.addToCartButtonText}>
+            <StyledText
+              variant="button"
+              weight="semibold"
+              style={styles.addToCartButtonText}
+            >
               Add to Cart
             </StyledText>
           </TouchableOpacity>
@@ -233,16 +296,16 @@ export default function RestaurantScreen() {
     <TouchableOpacity
       style={[
         styles.categoryButton,
-        selectedCategory === item && styles.categoryButtonActive
+        selectedCategory === item && styles.categoryButtonActive,
       ]}
       onPress={() => setSelectedCategory(item)}
     >
-      <StyledText 
-        variant="body" 
+      <StyledText
+        variant="body"
         weight="medium"
         style={[
           styles.categoryButtonText,
-          selectedCategory === item && styles.categoryButtonTextActive
+          selectedCategory === item && styles.categoryButtonTextActive,
         ]}
       >
         {item}
@@ -254,7 +317,7 @@ export default function RestaurantScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
@@ -269,7 +332,12 @@ export default function RestaurantScreen() {
       </View>
 
       {/* Restaurant Image */}
-      <Image source={restaurant.image} style={styles.restaurantImage} />
+      <View style={styles.imageView}>
+        <Image
+          source={clickedResturant[0].image}
+          style={styles.restaurantImage}
+        />
+      </View>
 
       {/* Restaurant Details */}
       <View style={styles.restaurantDetails}>
@@ -279,15 +347,27 @@ export default function RestaurantScreen() {
         <View style={styles.restaurantStats}>
           <View style={styles.ratingContainer}>
             <Ionicons name="star" size={16} color="#FFD700" />
-            <StyledText variant="body" weight="medium" style={styles.ratingText}>
+            <StyledText
+              variant="body"
+              weight="medium"
+              style={styles.ratingText}
+            >
               {restaurant.rating} ({restaurant.reviews} reviews)
             </StyledText>
           </View>
-          <StyledText variant="body" weight="regular" style={styles.deliveryTime}>
+          <StyledText
+            variant="body"
+            weight="regular"
+            style={styles.deliveryTime}
+          >
             • {restaurant.deliveryTime}
           </StyledText>
         </View>
-        <StyledText variant="body" weight="regular" style={styles.restaurantDescription}>
+        <StyledText
+          variant="body"
+          weight="regular"
+          style={styles.restaurantDescription}
+        >
           {restaurant.description}
         </StyledText>
       </View>
@@ -295,12 +375,20 @@ export default function RestaurantScreen() {
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.messageButton}>
-          <StyledText variant="button" weight="semibold" style={styles.messageButtonText}>
+          <StyledText
+            variant="button"
+            weight="semibold"
+            style={styles.messageButtonText}
+          >
             Send message
           </StyledText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.callButton}>
-          <StyledText variant="button" weight="semibold" style={styles.callButtonText}>
+          <StyledText
+            variant="button"
+            weight="semibold"
+            style={styles.callButtonText}
+          >
             Call
           </StyledText>
         </TouchableOpacity>
@@ -335,208 +423,220 @@ export default function RestaurantScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    marginTop: 50,
+    backgroundColor: Colors.myDefinedColors.background,
+    marginTop: StatusBar.currentHeight,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   backButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontWeight: "600",
+    color: "#1A1A1A",
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
     marginHorizontal: 12,
   },
   moreButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  imageView: {
+    marginHorizontal: 15,
   },
   restaurantImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   restaurantDetails: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.myDefinedColors.background,
     padding: 16,
     marginBottom: 16,
   },
   restaurantName: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: "bold",
+    color: "#1A1A1A",
     marginBottom: 12,
   },
   restaurantStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: Colors.myDefinedColors.background,
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: Colors.myDefinedColors.background,
+    flexDirection: "row",
+    alignItems: "center",
     marginRight: 12,
   },
   ratingText: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: "#1A1A1A",
     marginLeft: 4,
   },
   deliveryTime: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   restaurantDescription: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     lineHeight: 20,
   },
   actionButtons: {
-    flexDirection: 'row',
+    backgroundColor: Colors.myDefinedColors.background,
+    flexDirection: "row",
     gap: 12,
     paddingHorizontal: 16,
     marginBottom: 20,
   },
   messageButton: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.myDefinedColors.green,
     borderWidth: 1,
-    borderColor: '#FF6B35',
+    borderColor: Colors.myDefinedColors.green,
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   messageButtonText: {
-    color: '#FF6B35',
+    color: Colors.myDefinedColors.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   callButton: {
     flex: 1,
-    backgroundColor: '#FF6B35',
+    backgroundColor: Colors.myDefinedColors.white,
+    borderColor: Colors.myDefinedColors.green,
+    borderWidth: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   callButtonText: {
-    color: '#FFFFFF',
+    color: Colors.myDefinedColors.brown,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   categoriesContainer: {
+    backgroundColor: Colors.myDefinedColors.background,
     marginBottom: 20,
   },
   categoriesList: {
     paddingHorizontal: 16,
   },
   categoryButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
   },
   categoryButtonActive: {
-    backgroundColor: '#FF6B35',
-    borderColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
+    borderColor: "#FF6B35",
   },
   categoryButtonText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   categoryButtonTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   mealsContainer: {
+    backgroundColor: Colors.myDefinedColors.background,
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
   mealCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
   },
   mealImage: {
-    width: '100%',
+    width: "100%",
     height: 160,
     borderRadius: 8,
     marginBottom: 12,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   mealInfo: {
-    justifyContent: 'space-between',
+    backgroundColor: Colors.myDefinedColors.white,
+    justifyContent: "space-between",
   },
   mealName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
+    fontWeight: "bold",
+    color: "#1A1A1A",
     marginBottom: 6,
   },
   mealDescription: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginBottom: 8,
     lineHeight: 16,
   },
   mealPrice: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#4CAF50',
+    fontWeight: "600",
+    color: "#4CAF50",
     marginBottom: 12,
   },
   mealActions: {
-    flexDirection: 'row',
+    backgroundColor: Colors.myDefinedColors.white,
+    flexDirection: "row",
     gap: 8,
   },
   orderNowButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   orderNowButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   addToCartButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#FF6B35',
+    borderColor: "#FF6B35",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   addToCartButtonText: {
-    color: '#FF6B35',
+    color: "#FF6B35",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

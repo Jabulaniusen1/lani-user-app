@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, View as RNView } from 'react-native';
+import { StyleSheet, ScrollView, Pressable, Image, View, Text, StatusBar } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Color } from '@/constants/Colour';
 
-import { View } from '@/components/Themed';
-import StyledText from '@/components/StyledText';
+// import { View } from '@/components/Themed';
+// import StyledText from '@/components/StyledText';
 import { useCart } from '@/components/CartContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,7 +14,7 @@ export default function CartScreen() {
 
   const handleCheckout = () => {
     // Navigate to checkout page
-    router.push('/checkout');
+    router.push('/(protected)/checkout');
   };
 
   const handleRemoveItem = (id: string) => {
@@ -33,35 +34,33 @@ export default function CartScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity 
+          <Pressable 
             style={styles.backButton}
             onPress={() => router.back()}
           >
             <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <StyledText variant="subtitle" weight="semibold" style={styles.headerTitle}>
+          </Pressable>
+          <Text  style={styles.headerTitle}>
             Cart
-          </StyledText>
+          </Text>
           <View style={styles.placeholder} />
         </View>
-
-        {/* Empty Cart */}
         <View style={styles.emptyCartContainer}>
           <Ionicons name="cart-outline" size={80} color="#CCC" />
-          <StyledText variant="title" weight="bold" style={styles.emptyCartTitle}>
+          <Text style={styles.emptyCartTitle}>
             Your cart is empty
-          </StyledText>
-          <StyledText variant="body" weight="regular" style={styles.emptyCartSubtitle}>
+          </Text>
+          <Text style={styles.emptyCartSubtitle}>
             Add some delicious meals to get started!
-          </StyledText>
-          <TouchableOpacity 
+          </Text>
+          <Pressable 
             style={styles.startShoppingButton}
             onPress={() => router.back()}
           >
-            <StyledText variant="button" weight="semibold" style={styles.startShoppingButtonText}>
+            <Text style={styles.startShoppingButtonText}>
               Start Shopping
-            </StyledText>
-          </TouchableOpacity>
+            </Text>
+          </Pressable>
         </View>
       </View>
     );
@@ -71,55 +70,53 @@ export default function CartScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <Pressable 
           style={styles.backButton}
           onPress={() => router.back()}
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <StyledText variant="subtitle" weight="semibold" style={styles.headerTitle}>
+        </Pressable>
+        <Text  style={styles.headerTitle}>
           Cart
-        </StyledText>
+        </Text>
         <View style={styles.placeholder} />
       </View>
-
-      {/* Cart Items */}
       <ScrollView style={styles.cartItemsContainer} showsVerticalScrollIndicator={false}>
         {state.items.map((item) => (
           <View key={item.id} style={styles.cartItem}>
             <Image source={item.image} style={styles.cartItemImage} />
             <View style={styles.cartItemInfo}>
-              <StyledText variant="subtitle" weight="bold" style={styles.cartItemName}>
+              <Text style={styles.cartItemName}>
                 {item.name}
-              </StyledText>
-              <StyledText variant="body" weight="semibold" style={styles.cartItemPrice}>
+              </Text>
+              <Text style={styles.cartItemPrice}>
                 {item.price}
-              </StyledText>
+              </Text>
               <View style={styles.quantitySelector}>
-                <TouchableOpacity 
+                <Pressable 
                   style={styles.quantityButton}
                   onPress={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                 >
                   <Ionicons name="remove" size={16} color="#ffffff" />
-                </TouchableOpacity>
-                <StyledText variant="body" weight="semibold" style={styles.quantityText}>
+                </Pressable>
+                <Text style={styles.quantityText}>
                   {item.quantity}
-                </StyledText>
-                <TouchableOpacity 
+                </Text>
+                <Pressable 
                   style={styles.quantityButton}
                   onPress={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                 >
                   <Ionicons name="add" size={16} color="#ffffff" />
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
             
-            <TouchableOpacity 
+            <Pressable 
               style={styles.removeButton}
               onPress={() => handleRemoveItem(item.id)}
             >
               <Ionicons name="trash-outline" size={20} color="#FF6B35" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         ))}
       </ScrollView>
@@ -127,47 +124,47 @@ export default function CartScreen() {
       {/* Cart Summary */}
       <View style={styles.cartSummary}>
         <View style={styles.summaryRow}>
-          <StyledText variant="body" weight="regular" style={styles.summaryLabel}>
+          <Text style={styles.summaryLabel}>
             Subtotal:
-          </StyledText>
-          <StyledText variant="body" weight="medium" style={styles.summaryValue}>
+          </Text>
+          <Text  style={styles.summaryValue}>
             ₦{state.totalAmount.toLocaleString()}
-          </StyledText>
+          </Text>
         </View>
         <View style={styles.summaryRow}>
-          <StyledText variant="body" weight="regular" style={styles.summaryLabel}>
+          <Text style={styles.summaryLabel}>
             Delivery fee:
-          </StyledText>
-          <StyledText variant="body" weight="medium" style={styles.summaryValue}>
+          </Text>
+          <Text style={styles.summaryValue}>
             ₦1,000
-          </StyledText>
+          </Text>
         </View>
         <View style={styles.summaryRow}>
-          <StyledText variant="body" weight="regular" style={styles.summaryLabel}>
+          <Text  style={styles.summaryLabel}>
             Service charge:
-          </StyledText>
-          <StyledText variant="body" weight="medium" style={styles.summaryValue}>
+          </Text>
+          <Text style={styles.summaryValue}>
             ₦1,000
-          </StyledText>
+          </Text>
         </View>
         <View style={styles.summaryDivider} />
         <View style={styles.summaryRow}>
-          <StyledText variant="subtitle" weight="bold" style={styles.totalLabel}>
+          <Text  style={styles.totalLabel}>
             Total:
-          </StyledText>
-          <StyledText variant="title" weight="bold" style={styles.totalValue}>
+          </Text>
+          <Text style={styles.totalValue}>
             ₦{(state.totalAmount + 2000).toLocaleString()}
-          </StyledText>
+          </Text>
         </View>
         
-        <TouchableOpacity 
+        <Pressable 
           style={styles.checkoutButton}
           onPress={handleCheckout}
         >
-          <StyledText variant="button" weight="semibold" style={styles.checkoutButtonText}>
+          <Text  style={styles.checkoutButtonText}>
             Checkout
-          </StyledText>
-        </TouchableOpacity>
+          </Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -176,6 +173,8 @@ export default function CartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Color.background,
+    marginTop: StatusBar.currentHeight,
   },
   header: {
     flexDirection: 'row',

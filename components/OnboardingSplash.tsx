@@ -140,7 +140,7 @@ export default function OnboardingSplash({ onComplete }: OnboardingSplashProps) 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff1e8" />
       
       {/* Header with Skip button */}
       {/* <View style={styles.header}>
@@ -193,6 +193,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff1e8',
+    marginTop: StatusBar.currentHeight,
   },
   header: {
     flexDirection: 'row',
@@ -211,6 +212,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingTop: '5%' //added this to make space at the top of the scrollable splash screen
   },
   slide: {
     width,

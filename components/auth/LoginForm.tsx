@@ -1,31 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   Alert,
   Image,
-} from 'react-native';
-import { router } from 'expo-router';
-import GoogleLogo from '@/components/icons/GoogleLogo';
-import FacebookLogo from '@/components/icons/FacebookLogo';
-import AppleLogo from '@/components/icons/AppleLogo';
+} from "react-native";
+import { router } from "expo-router";
+import GoogleLogo from "@/components/icons/GoogleLogo";
+import FacebookLogo from "@/components/icons/FacebookLogo";
+import AppleLogo from "@/components/icons/AppleLogo";
 
 interface LoginFormProps {
   onLogin: (data: { email: string; password: string }) => void;
 }
 
 export default function LoginForm({ onLogin }: LoginFormProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
@@ -34,11 +34,14 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
 
   const handleForgotPassword = () => {
     Alert.alert(
-      'Forgot Password',
-      'A password reset link will be sent to your email address.',
+      "Forgot Password",
+      "A password reset link will be sent to your email address.",
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Send Reset Link', onPress: () => console.log('Reset link sent') },
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Send Reset Link",
+          onPress: () => console.log("Reset link sent"),
+        },
       ]
     );
   };
@@ -47,28 +50,25 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
     Alert.alert(
       `${platform} Login`,
       `${platform} login functionality will be implemented here.`,
-      [{ text: 'OK' }]
+      [{ text: "OK" }]
     );
   };
 
   const handleRegister = () => {
-    router.push('/auth/register');
+    router.push("/auth/register");
   };
 
   return (
     <View style={styles.container}>
-      {/* Header with Logo */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image 
-            source={require('@/assets/images/laanieats-logo.png')}
+          <Image
+            source={require("@/assets/images/laanieats-logo.png")}
             style={styles.logoImage}
             resizeMode="contain"
           />
         </View>
       </View>
-
-      {/* Login Form */}
       <View style={styles.formContainer}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email Address</Text>
@@ -82,7 +82,6 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
             autoCapitalize="none"
           />
         </View>
-
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
@@ -95,73 +94,62 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
               secureTextEntry={!showPassword}
               autoCapitalize="none"
             />
-            <TouchableOpacity
+            <Pressable
               style={styles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text style={styles.eyeIcon}>
-                {showPassword ? '👁️' : '👁️‍🗨️'}
-              </Text>
-            </TouchableOpacity>
+              <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+            </Pressable>
           </View>
-          <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
+          <Pressable
+            style={styles.forgotPassword}
+            onPress={handleForgotPassword}
+          >
             <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
-
-        {/* Keep Me Logged In */}
         <View style={styles.checkboxContainer}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.checkbox, keepLoggedIn && styles.checkboxChecked]}
             onPress={() => setKeepLoggedIn(!keepLoggedIn)}
           >
             {keepLoggedIn && <Text style={styles.checkmark}>✓</Text>}
-          </TouchableOpacity>
+          </Pressable>
           <Text style={styles.checkboxText}>Keep me logged in</Text>
         </View>
-
-        {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Pressable style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-
-        {/* Social Login Divider */}
+        </Pressable>
         <View style={styles.dividerContainer}>
           <View style={styles.dividerLine} />
           <Text style={styles.dividerText}>Or log in with</Text>
           <View style={styles.dividerLine} />
         </View>
-
-        {/* Social Login Buttons */}
         <View style={styles.socialContainer}>
-          <TouchableOpacity
+          <Pressable
             style={styles.socialButton}
-            onPress={() => handleSocialLogin('Google')}
+            onPress={() => handleSocialLogin("Google")}
           >
             <GoogleLogo width={24} height={24} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             style={styles.socialButton}
-            onPress={() => handleSocialLogin('Facebook')}
+            onPress={() => handleSocialLogin("Facebook")}
           >
             <FacebookLogo width={24} height={24} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             style={styles.socialButton}
-            onPress={() => handleSocialLogin('Apple')}
+            onPress={() => handleSocialLogin("Apple")}
           >
             <AppleLogo width={24} height={24} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
-
-        {/* Register Link */}
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={handleRegister}>
+          <Pressable onPress={handleRegister}>
             <Text style={styles.registerLink}>Sign up</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     </View>
@@ -171,17 +159,17 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   header: {
-    backgroundColor: '#FFE4D6',
+    backgroundColor: "#FFE4D6",
     paddingTop: 60,
     paddingBottom: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   logoImage: {
     width: 120,
@@ -197,26 +185,26 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontWeight: "600",
+    color: "#1A1A1A",
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#FF6B35',
+    borderColor: "#FF6B35",
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#FF6B35',
+    borderColor: "#FF6B35",
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   passwordInput: {
     flex: 1,
@@ -232,48 +220,48 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   forgotPassword: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginTop: 8,
   },
   forgotPasswordText: {
-    color: '#FF6B35',
+    color: "#FF6B35",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
   },
   checkbox: {
     width: 20,
     height: 20,
     borderWidth: 2,
-    borderColor: '#FF6B35',
+    borderColor: "#FF6B35",
     borderRadius: 4,
     marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   checkboxChecked: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
   },
   checkmark: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   checkboxText: {
     fontSize: 16,
-    color: '#1A1A1A',
+    color: "#1A1A1A",
   },
   loginButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 32,
-    shadowColor: '#FF6B35',
+    shadowColor: "#FF6B35",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -283,41 +271,41 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   loginButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 32,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: "#E0E0E0",
   },
   dividerText: {
     marginHorizontal: 16,
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 32,
   },
   socialButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#E0E0E0",
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -331,18 +319,18 @@ const styles = StyleSheet.create({
     height: 24,
   },
   registerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   registerText: {
-    color: '#1A1A1A',
+    color: "#1A1A1A",
     fontSize: 16,
   },
   registerLink: {
-    color: '#FF6B35',
+    color: "#FF6B35",
     fontSize: 16,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
 });
