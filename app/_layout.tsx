@@ -13,8 +13,9 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { CartProvider } from "@/components/CartContext";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
-import { SessionProvider } from "../auth/ctx";
+import { SessionProvider, useSession } from "../auth/ctx";
 import { SplashScreenController } from "../auth/splash";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -23,7 +24,9 @@ export default function Root() {
   return (
     <SessionProvider>
       <SplashScreenController />
-      <RootLayout />
+      <SafeAreaProvider>
+        <RootLayout />
+      </SafeAreaProvider>
     </SessionProvider>
   );
 }
@@ -53,6 +56,7 @@ function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { session } = useSession();
 
   return (
     <Provider store={store}>
@@ -61,8 +65,7 @@ function RootLayoutNav() {
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
           <Stack>
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-            <Stack.Screen name="auth" options={{ headerShown: false }} />
+            {/* <Stack.Screen name="onboarding" options={{ headerShown: false }} /> */}
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: "modal" }} />
             <Stack.Screen
@@ -70,7 +73,15 @@ function RootLayoutNav() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+            <Stack.Protected guard={!session}>
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+            </Stack.Protected>
+            <Stack.Protected guard={!!session}>
+              <Stack.Screen
+                name="(protected)"
+                options={{ headerShown: false }}
+              />
+            </Stack.Protected>
           </Stack>
         </ThemeProvider>
       </CartProvider>

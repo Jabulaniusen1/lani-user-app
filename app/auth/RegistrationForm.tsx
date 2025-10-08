@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -6,41 +6,32 @@ import {
   StyleSheet,
   Alert,
   Pressable,
-  StatusBar,
 } from "react-native";
 import { router } from "expo-router";
 import GoogleLogo from "@/components/icons/GoogleLogo";
 import FacebookLogo from "@/components/icons/FacebookLogo";
 import AppleLogo from "@/components/icons/AppleLogo";
 import { useSession } from "../../auth/ctx";
+import { Color } from "@/constants/Colour";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-interface RegistrationFormProps {
-  onContinue: (data: {
-    fullName: string;
-    email: string;
-    phone: string;
-  }) => void;
-}
-
-export default function RegistrationForm({
-  onContinue,
-}: RegistrationFormProps) {
-  // SESSION
+export default function RegistrationForm() {
   const { register } = useSession();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // =================
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    }
+    if (!fullName.trim()) newErrors.fullName = "Full name is required";
 
     if (!email.trim()) {
       newErrors.email = "Email is required";
@@ -48,27 +39,22 @@ export default function RegistrationForm({
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (!phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (phone.length < 10) {
-      newErrors.phone = "Please enter a valid phone number";
+    if (!password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleContinue = () => {
-    if (validateForm()) {
-      onContinue({ fullName, email, phone });
-      console.log(true);
-    } else {
-      console.log(false);
+    const isValid = validateForm();
+
+    if (isValid) {
+      register(email, password);
+      router.replace("/(tabs)");
     }
   };
 
@@ -92,16 +78,18 @@ export default function RegistrationForm({
   };
 
   const handleLogin = () => {
-    router.push("/auth/login");
+    router.push("/auth/LoginForm");
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Let's get started</Text>
+
+      {/* Full Name */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Let's know your full name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, errors.fullName ? styles.inputError : null]}
           placeholder="Full name here"
           placeholderTextColor="#999"
           value={fullName}
@@ -113,10 +101,11 @@ export default function RegistrationForm({
         )}
       </View>
 
+      {/* Email */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email Address</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, errors.email ? styles.inputError : null]}
           placeholder="example@email.com"
           placeholderTextColor="#999"
           value={email}
@@ -124,39 +113,50 @@ export default function RegistrationForm({
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        {errors.email && (
-          <Text style={styles.errorText}>
-            Please enter a valid email address
-          </Text>
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      </View>
+
+      {/* Password */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          style={[styles.input, errors.password ? styles.inputError : null]}
+          placeholder="Enter password"
+          placeholderTextColor="#999"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        {errors.password && (
+          <Text style={styles.errorText}>{errors.password}</Text>
         )}
       </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Phone number</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="+234"
-          placeholderTextColor="#999"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-        />
-        {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
-      </View>
-      <Pressable style={styles.continueButton} onPress={handleContinue}>
+      {/* Continue */}
+      <Pressable
+        style={({ pressed }) =>
+          pressed
+            ? [styles.continueButton, styles.pressed]
+            : styles.continueButton
+        }
+        onPress={handleContinue}
+      >
         <Text style={styles.continueButtonText}>Continue</Text>
       </Pressable>
 
+      {/* Continue as Guest */}
       <Pressable style={styles.guestButton} onPress={handleContinueAsGuest}>
         <Text style={styles.guestButtonText}>Continue as guest</Text>
       </Pressable>
 
+      {/* Divider */}
       <View style={styles.dividerContainer}>
         <View style={styles.dividerLine} />
         <Text style={styles.dividerText}>Or continue with</Text>
         <View style={styles.dividerLine} />
       </View>
 
+      {/* Social Logins */}
       <View style={styles.socialContainer}>
         <Pressable
           style={styles.socialButton}
@@ -180,13 +180,14 @@ export default function RegistrationForm({
         </Pressable>
       </View>
 
+      {/* Login */}
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Already have an account? </Text>
         <Pressable onPress={handleLogin}>
           <Text style={styles.loginLink}>Log in</Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -194,7 +195,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: StatusBar.currentHeight,
+    paddingTop: "30%",
+    backgroundColor: Color.background,
   },
   title: {
     fontSize: 28,
@@ -221,19 +223,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#FFFFFF",
   },
-  errorContainer: {
-    backgroundColor: "#FFF3E0",
-    borderColor: "#FF6B35",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginTop: 8,
-    flexDirection: "row",
-    alignItems: "center",
+  inputError: {
+    borderColor: "red",
   },
   errorText: {
-    color: "#FF6B35",
+    color: "red",
     fontSize: 14,
     marginTop: 4,
   },
@@ -244,13 +238,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 16,
     shadowColor: "#FF6B35",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
+  },
+  pressed: {
+    opacity: 0.65,
   },
   continueButtonText: {
     color: "#FFFFFF",
@@ -298,10 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: 12,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
@@ -310,7 +301,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    // marginTop: 40,
   },
   loginText: {
     color: "#1A1A1A",

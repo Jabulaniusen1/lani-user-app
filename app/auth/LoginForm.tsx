@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -12,24 +12,25 @@ import { router } from "expo-router";
 import GoogleLogo from "@/components/icons/GoogleLogo";
 import FacebookLogo from "@/components/icons/FacebookLogo";
 import AppleLogo from "@/components/icons/AppleLogo";
+import { useSession } from "@/auth/ctx";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Color } from "@/constants/Colour";
 
-interface LoginFormProps {
-  onLogin: (data: { email: string; password: string }) => void;
-}
-
-export default function LoginForm({ onLogin }: LoginFormProps) {
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  // const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const { login } = useSession();
 
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill in all fields");
       return;
+    } else {
+      login(email, password);
+      router.replace("/(tabs)");
     }
-
-    onLogin({ email, password });
   };
 
   const handleForgotPassword = () => {
@@ -55,60 +56,61 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   const handleRegister = () => {
-    router.push("/auth/register");
+    router.replace("/auth/RegistrationForm");
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Image
-            source={require("@/assets/images/laanieats-logo.png")}
+            source={require("../../assets/images/laanieats-logo.png")}
             style={styles.logoImage}
             resizeMode="contain"
           />
         </View>
       </View>
-      <View style={styles.formContainer}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="example@email.com"
-            placeholderTextColor="#999"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
+      <View style={{ flex: 1, backgroundColor: "white" }}>
+        <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email Address</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholder="Enter your password"
+              style={styles.input}
+              placeholder="example@email.com"
               placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
               autoCapitalize="none"
             />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Enter your password"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <Pressable
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+              </Pressable>
+            </View>
             <Pressable
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
+              style={styles.forgotPassword}
+              onPress={handleForgotPassword}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </Pressable>
           </View>
-          <Pressable
-            style={styles.forgotPassword}
-            onPress={handleForgotPassword}
-          >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-          </Pressable>
-        </View>
-        <View style={styles.checkboxContainer}>
+          {/* <View style={styles.checkboxContainer}>
           <Pressable
             style={[styles.checkbox, keepLoggedIn && styles.checkboxChecked]}
             onPress={() => setKeepLoggedIn(!keepLoggedIn)}
@@ -116,53 +118,54 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
             {keepLoggedIn && <Text style={styles.checkmark}>✓</Text>}
           </Pressable>
           <Text style={styles.checkboxText}>Keep me logged in</Text>
-        </View>
-        <Pressable style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </Pressable>
-        <View style={styles.dividerContainer}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>Or log in with</Text>
-          <View style={styles.dividerLine} />
-        </View>
-        <View style={styles.socialContainer}>
-          <Pressable
-            style={styles.socialButton}
-            onPress={() => handleSocialLogin("Google")}
-          >
-            <GoogleLogo width={24} height={24} />
+        </View> */}
+          <Pressable style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Login</Text>
           </Pressable>
-          <Pressable
-            style={styles.socialButton}
-            onPress={() => handleSocialLogin("Facebook")}
-          >
-            <FacebookLogo width={24} height={24} />
-          </Pressable>
-          <Pressable
-            style={styles.socialButton}
-            onPress={() => handleSocialLogin("Apple")}
-          >
-            <AppleLogo width={24} height={24} />
-          </Pressable>
-        </View>
-        <View style={styles.registerContainer}>
-          <Text style={styles.registerText}>Don't have an account? </Text>
-          <Pressable onPress={handleRegister}>
-            <Text style={styles.registerLink}>Sign up</Text>
-          </Pressable>
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>Or log in with</Text>
+            <View style={styles.dividerLine} />
+          </View>
+          <View style={styles.socialContainer}>
+            <Pressable
+              style={styles.socialButton}
+              onPress={() => handleSocialLogin("Google")}
+            >
+              <GoogleLogo width={24} height={24} />
+            </Pressable>
+            <Pressable
+              style={styles.socialButton}
+              onPress={() => handleSocialLogin("Facebook")}
+            >
+              <FacebookLogo width={24} height={24} />
+            </Pressable>
+            <Pressable
+              style={styles.socialButton}
+              onPress={() => handleSocialLogin("Apple")}
+            >
+              <AppleLogo width={24} height={24} />
+            </Pressable>
+          </View>
+          <View style={styles.registerContainer}>
+            <Text style={styles.registerText}>Don't have an account? </Text>
+            <Pressable onPress={handleRegister}>
+              <Text style={styles.registerLink}>Sign up</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Color.tabBar,
   },
   header: {
-    backgroundColor: "#FFE4D6",
+    backgroundColor: Color.tabBar,
     paddingTop: 60,
     paddingBottom: 40,
     alignItems: "center",

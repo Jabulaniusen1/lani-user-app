@@ -39,7 +39,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: Colors.myDefinedColors.tabBar,
           borderTopColor: "#fff1e8", //works for iOS
-          borderRadius: 10,
+          // borderRadius: 10,
         },
         tabBarLabelStyle: {
           fontSize: 12,

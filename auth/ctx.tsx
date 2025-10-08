@@ -37,7 +37,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
 
   useEffect(() => {
-    const subscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const token = await user.getIdToken();
         setSession(token);
@@ -45,7 +45,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         setSession(null);
       }
     });
-    return subscribe;
+    return unsubscribe;
   }, []);
 
   return (
@@ -56,13 +56,14 @@ export function SessionProvider({ children }: PropsWithChildren) {
             await createUserWithEmailAndPassword(auth, email, password);
           } catch (error: unknown) {
             if (error instanceof Error) {
-              Alert.alert("Error", error.message, [
+              Alert.alert("Error", "This email already exist", [
                 {
                   text: "Cancel",
                   onPress: () => console.log("Cancel Pressed"),
                   style: "cancel",
                 },
               ]);
+              
             } else {
               Alert.alert("Error", "Something went wrong", [
                 {
@@ -71,6 +72,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
                   style: "cancel",
                 },
               ]);
+              throw error;
             }
           }
         },

@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -6,6 +6,7 @@ import {
   Image,
   Switch,
   StatusBar,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -13,9 +14,28 @@ import { router } from "expo-router";
 import { View } from "@/components/Themed";
 import StyledText from "@/components/StyledText";
 import Colors from "@/constants/Colors";
+import { useSession } from "@/auth/ctx";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
-  const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const { logout } = useSession();
+
+  function logoutHandler() {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Logout",
+        onPress: () => {
+          logout();
+          router.replace("/auth/LoginForm");
+        },
+      },
+      {
+        text: "Cancel",
+        onPress: () => router.replace("/(tabs)"),
+      },
+    ]);
+  }
 
   const profileMenuItems = [
     {
@@ -67,7 +87,7 @@ export default function ProfileScreen() {
       id: "7",
       title: "Log out",
       icon: "log-out-outline",
-      action: () => router.push("/auth/login"),
+      action: logoutHandler,
       showArrow: false,
       isDestructive: true,
     },
@@ -119,39 +139,41 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
-        <Image
-          source={{
-            uri: "https://avatar.iran.liara.run/public/girl?username=Annie",
-          }}
-          style={styles.profileImage}
-        />
-        <StyledText variant="title" weight="bold" style={styles.profileName}>
-          Annie Davies
-        </StyledText>
-        <TouchableOpacity style={styles.editProfileButton}>
-          <StyledText
-            variant="body"
-            weight="medium"
-            style={styles.editProfileText}
-          >
-            Edit profile {">"}
+      <SafeAreaView>
+        {/* Profile Section */}
+        <View style={styles.profileSection}>
+          <Image
+            source={{
+              uri: "https://avatar.iran.liara.run/public/girl?username=Annie",
+            }}
+            style={styles.profileImage}
+          />
+          <StyledText variant="title" weight="bold" style={styles.profileName}>
+            Annie Davies
           </StyledText>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.editProfileButton}>
+            <StyledText
+              variant="body"
+              weight="medium"
+              style={styles.editProfileText}
+            >
+              Edit profile {">"}
+            </StyledText>
+          </TouchableOpacity>
+        </View>
 
-      {/* Menu Items */}
-      <View style={styles.menuSection}>
-        {profileMenuItems.map((item) => (
-          <View key={item.id}>
-            {renderMenuItem({ item })}
-            {item.id !== profileMenuItems[profileMenuItems.length - 1].id && (
-              <View style={styles.menuDivider} />
-            )}
-          </View>
-        ))}
-      </View>
+        {/* Menu Items */}
+        <View style={styles.menuSection}>
+          {profileMenuItems.map((item) => (
+            <View key={item.id}>
+              {renderMenuItem({ item })}
+              {item.id !== profileMenuItems[profileMenuItems.length - 1].id && (
+                <View style={styles.menuDivider} />
+              )}
+            </View>
+          ))}
+        </View>
+      </SafeAreaView>
     </ScrollView>
   );
 }
