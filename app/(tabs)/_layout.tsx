@@ -5,6 +5,7 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from 'expo-splash-screen';
 
 import Colors from "../../constants/Colors";
+import { useTheme } from "../../contexts/ThemeContext";
 
 
 function IoniconsTabBarIcon(props: {
@@ -18,6 +19,7 @@ export default function TabLayout() {
    const [loaded, error] = useFonts({
     'Bricolage-24pt-bold': require("../../assets/fonts/BricolageGrotesque_24pt_Condensed-Bold.ttf"),
   });
+  const { colors, isDark } = useTheme();
 
   useEffect(() => {
     if (loaded || error) {
@@ -32,14 +34,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#FF6B35",
-        tabBarInactiveTintColor: "#999",
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
         tabBarShowLabel: true,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.myDefinedColors.tabBar,
-          borderTopColor: "#fff1e8", //works for iOS
-          // borderRadius: 10,
+          backgroundColor: colors.tabBar,
+          borderTopColor: colors.border,
         },
         tabBarLabelStyle: {
           fontSize: 12,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -7,416 +7,208 @@ import {
   FlatList,
   Dimensions,
   StatusBar,
+  View,
+  Text,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-import { View } from "@/components/Themed";
+import { View as ThemedView } from "@/components/Themed";
 import StyledText from "@/components/StyledText";
 import { useCart } from "@/components/CartContext";
 import Colors from "@/constants/Colors";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useData } from "@/contexts/DataContext";
+import { Restaurant, Meal } from "@/redux/lani_eats";
+import { useSession } from "@/auth/ctx";
 
 const { width } = Dimensions.get("window");
 
-// Dummy data for restaurants
-const restaurants: Record<
-  string,
-  {
-    id: string;
-    name: string;
-    location: string;
-    image: any;
-    rating: number;
-    reviews: number;
-    deliveryTime: string;
-    description: string;
-  }
-> = {
-  "1": {
-    id: "1",
-    name: "Eni Stores",
-    location: "Nsikak Eduok",
-    image: require("@/assets/images/laanieats-logo.png"),
-    rating: 4.5,
-    reviews: 1234,
-    deliveryTime: "25-30 min",
-    description:
-      "Authentic Nigerian cuisine with fresh ingredients and traditional recipes.",
-  },
-  "2": {
-    id: "2",
-    name: "Kilimanjaro",
-    location: "Ikot Ekpene Road",
-    image: require("@/assets/images/laanieats-logo.png"),
-    rating: 4.3,
-    reviews: 856,
-    deliveryTime: "20-25 min",
-    description:
-      "Modern African fusion restaurant serving contemporary dishes with local flavors.",
-  },
-  "3": {
-    id: "3",
-    name: "Chicken Republic",
-    location: "Ikot Ekpene Road",
-    image: require("@/assets/images/laanieats-logo.png"),
-    rating: 4.7,
-    reviews: 2103,
-    deliveryTime: "15-20 min",
-    description:
-      "Fast-casual dining specializing in grilled chicken and continental dishes.",
-  },
-  "4": {
-    id: "4",
-    name: "Pizza Palace",
-    location: "Main Street",
-    image: require("@/assets/images/laanieats-logo.png"),
-    rating: 4.2,
-    reviews: 567,
-    deliveryTime: "30-35 min",
-    description:
-      "Italian-inspired pizzeria with wood-fired ovens and fresh toppings.",
-  },
-};
-
-// Dummy data for restaurant meals
-const restaurantMeals: Record<
-  string,
-  Array<{
-    id: string;
-    name: string;
-    description: string;
-    price: string;
-    image: any;
-    category: string;
-  }>
-> = {
-  "1": [
-    // Eni Stores meals
-    {
-      id: "1",
-      name: "Okro soup & Garri",
-      description:
-        "Thick okro soup with fresh fish, served hot with smooth white garri.",
-      price: "₦2,800",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Soups",
-    },
-    {
-      id: "2",
-      name: "Jollof Rice & Plantain",
-      description:
-        "Naija-style jollof rice with crispy, golden plantain slices. Pure comfort food.",
-      price: "₦2,200",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Rice & Pasta",
-    },
-    {
-      id: "3",
-      name: "Pepper Soup",
-      description:
-        "Spicy Nigerian pepper soup with assorted meat and vegetables.",
-      price: "₦1,800",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Soups",
-    },
-    {
-      id: "4",
-      name: "Pounded Yam & Efo Riro",
-      description:
-        "Smooth pounded yam served with rich vegetable soup and choice meat.",
-      price: "₦3,200",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Soups",
-    },
-  ],
-  "2": [
-    // Kilimanjaro meals
-    {
-      id: "5",
-      name: "Shawarma & Coke",
-      description:
-        "Spicy beef or chicken shawarma wrapped fresh, served with ice-cold Coke.",
-      price: "₦2,500",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Snacks",
-    },
-    {
-      id: "6",
-      name: "Grilled Fish & Chips",
-      description: "Fresh grilled fish with crispy chips and tartar sauce.",
-      price: "₦3,500",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Main Course",
-    },
-  ],
-  "3": [
-    // Chicken Republic meals
-    {
-      id: "7",
-      name: "Chicken & Chips",
-      description: "Crispy fried chicken with golden fries and special sauce.",
-      price: "₦3,000",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Main Course",
-    },
-    {
-      id: "8",
-      name: "Grilled Chicken Salad",
-      description:
-        "Fresh mixed greens with grilled chicken breast and vinaigrette.",
-      price: "₦2,800",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Salads",
-    },
-  ],
-  "4": [
-    // Pizza Palace meals
-    {
-      id: "9",
-      name: "Margherita Pizza",
-      description:
-        "Classic tomato sauce with mozzarella cheese and fresh basil.",
-      price: "₦4,500",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Pizza",
-    },
-    {
-      id: "10",
-      name: "Pepperoni Pizza",
-      description: "Spicy pepperoni with melted cheese on crispy crust.",
-      price: "₦5,200",
-      image: require("@/assets/images/laanieats-logo.png"),
-      category: "Pizza",
-    },
-  ],
-};
-
-const categories = [
-  "All",
-  "Soups",
-  "Snacks",
-  "Rice & Pasta",
-  "Main Course",
-  "Salads",
-  "Pizza",
-];
-
-export default function RestaurantScreen() {
-  const { id } = useLocalSearchParams();
-  const restaurant = restaurants[id as string];
-  const meals = restaurantMeals[id as string] || [];
-  const [selectedCategory, setSelectedCategory] = useState("All");
+export default function RestaurantDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { addItem } = useCart();
+  const { session } = useSession();
+  const { fetchRestaurantById, fetchMealsByRestaurant } = useData();
+  
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
 
-  //===========GET IMAGE FOR THE PARTICULAR ID================//
-  const popularRestaurants = useSelector(
-    (state: RootState) => state.eats.popularRestaurants
+  useEffect(() => {
+    loadRestaurantData();
+  }, [id]);
+
+  const loadRestaurantData = async () => {
+    if (!id) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const [restaurantData, mealsData] = await Promise.all([
+        fetchRestaurantById(id),
+        fetchMealsByRestaurant(id)
+      ]);
+      
+      if (restaurantData) {
+        setRestaurant(restaurantData);
+      } else {
+        setError("Restaurant not found");
+      }
+      
+      setMeals(mealsData);
+    } catch (err) {
+      setError("Failed to load restaurant data");
+      console.error("Error loading restaurant data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = async (meal: Meal) => {
+    if (!session) {
+      Alert.alert(
+        "Login Required",
+        "Please login to add items to your cart and place orders.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { 
+            text: "Login", 
+            onPress: () => router.push("/auth/LoginForm") 
+          },
+          { 
+            text: "Sign Up", 
+            onPress: () => router.push("/auth/RegistrationForm") 
+          }
+        ]
+      );
+      return;
+    }
+    
+    setIsAddingToCart(meal.id);
+    // Simulate a brief loading state for better UX
+    setTimeout(() => {
+      addItem({
+        id: meal.id,
+        name: meal.name,
+        price: `₦${meal.price.toLocaleString()}`,
+        image: { uri: meal.image },
+        restaurant: meal.restaurantName,
+        quantity: 1,
+      });
+      setIsAddingToCart(null);
+    }, 500);
+  };
+
+  const renderMealItem = ({ item }: { item: Meal }) => (
+    <View style={styles.mealItem}>
+      <Image source={{ uri: item.image }} style={styles.mealImage} />
+      <View style={styles.mealInfo}>
+        <Text style={styles.mealName}>{item.name}</Text>
+        <Text style={styles.mealDescription}>{item.description}</Text>
+        <View style={styles.mealFooter}>
+          <Text style={styles.mealPrice}>₦{item.price.toLocaleString()}</Text>
+          <TouchableOpacity
+            style={[
+              styles.addButton,
+              isAddingToCart === item.id && styles.addButtonDisabled
+            ]}
+            onPress={() => handleAddToCart(item)}
+            disabled={isAddingToCart === item.id}
+          >
+            {isAddingToCart === item.id ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.addButtonText}>Add</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
-  const clickedResturant = popularRestaurants.filter((val) => val.id === id);
-  // console.log(popularRestaurants[0]);
-  //===============END========================================//
 
-  if (!restaurant) {
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <StyledText>Restaurant not found</StyledText>
+      <View style={styles.loadingContainer}>
+        <StatusBar backgroundColor={Colors.myDefinedColors.background} />
+        <ActivityIndicator size="large" color="#FF6B35" />
+        <Text style={styles.loadingText}>Loading restaurant...</Text>
       </View>
     );
   }
 
-  //=============
-  const filteredMeals =
-    selectedCategory === "All"
-      ? meals
-      : meals.filter((meal) => meal.category === selectedCategory);
-
-  const renderMealCard = ({ item }: { item: (typeof meals)[0] }) => (
-    // console.log(item.image, item.id),
-    <TouchableOpacity
-      style={styles.mealCard}
-      onPress={() => router.push(`/meal/${item.id}`)}
-    >
-      <Image source={item.image} style={styles.mealImage} />
-      <View style={styles.mealInfo}>
-        <StyledText variant="subtitle" weight="bold" style={styles.mealName}>
-          {item.name}
-        </StyledText>
-        <StyledText
-          variant="body"
-          weight="regular"
-          style={styles.mealDescription}
-        >
-          {item.description}
-        </StyledText>
-        <StyledText variant="body" weight="semibold" style={styles.mealPrice}>
-          {item.price}
-        </StyledText>
-        <View style={styles.mealActions}>
-          <TouchableOpacity
-            style={styles.orderNowButton}
-            onPress={() => router.push(`/meal/${item.id}`)}
-          >
-            <StyledText
-              variant="button"
-              weight="semibold"
-              style={styles.orderNowButtonText}
-            >
-              Order now
-            </StyledText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={() => {
-              addItem({
-                id: item.id,
-                name: item.name,
-                price: item.price,
-                image: item.image,
-                restaurant: restaurant.name,
-                quantity: 1,
-              });
-            }}
-          >
-            <StyledText
-              variant="button"
-              weight="semibold"
-              style={styles.addToCartButtonText}
-            >
-              Add to Cart
-            </StyledText>
-          </TouchableOpacity>
-        </View>
+  if (error || !restaurant) {
+    return (
+      <View style={styles.errorContainer}>
+        <StatusBar backgroundColor={Colors.myDefinedColors.background} />
+        <Ionicons name="alert-circle" size={64} color="#FF6B35" />
+        <Text style={styles.errorText}>{error || "Restaurant not found"}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={loadRestaurantData}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
-  );
-
-  const renderCategoryButton = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryButton,
-        selectedCategory === item && styles.categoryButtonActive,
-      ]}
-      onPress={() => setSelectedCategory(item)}
-    >
-      <StyledText
-        variant="body"
-        weight="medium"
-        style={[
-          styles.categoryButtonText,
-          selectedCategory === item && styles.categoryButtonTextActive,
-        ]}
-      >
-        {item}
-      </StyledText>
-    </TouchableOpacity>
-  );
+    );
+  }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <StatusBar backgroundColor={Colors.myDefinedColors.background} />
+      
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <StyledText variant="body" weight="semibold" style={styles.headerTitle}>
-          {restaurant.name} - {restaurant.location}
-        </StyledText>
-        <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-vertical" size={24} color="#333" />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{restaurant.name}</Text>
+        <View style={styles.placeholder} />
       </View>
 
-      {/* Restaurant Image */}
-      <View style={styles.imageView}>
-        <Image
-          source={clickedResturant[0].image}
-          style={styles.restaurantImage}
-        />
-      </View>
-
-      {/* Restaurant Details */}
-      <View style={styles.restaurantDetails}>
-        <StyledText variant="title" weight="bold" style={styles.restaurantName}>
-          {restaurant.name} - {restaurant.location}
-        </StyledText>
-        <View style={styles.restaurantStats}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#FFD700" />
-            <StyledText
-              variant="body"
-              weight="medium"
-              style={styles.ratingText}
-            >
-              {restaurant.rating} ({restaurant.reviews} reviews)
-            </StyledText>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Restaurant Info */}
+        <View style={styles.restaurantInfo}>
+          <Image source={{ uri: restaurant.image }} style={styles.restaurantImage} />
+          <View style={styles.restaurantDetails}>
+            <Text style={styles.restaurantName}>{restaurant.name}</Text>
+            <Text style={styles.restaurantLocation}>{restaurant.location}</Text>
+            <Text style={styles.restaurantDescription}>{restaurant.description}</Text>
+            
+            <View style={styles.restaurantStats}>
+              <View style={styles.statItem}>
+                <Ionicons name="star" size={16} color="#FFD700" />
+                <Text style={styles.statText}>{restaurant.rating}</Text>
+                <Text style={styles.statLabel}>({restaurant.reviews} reviews)</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Ionicons name="time" size={16} color="#4CAF50" />
+                <Text style={styles.statText}>{restaurant.deliveryTime}</Text>
+              </View>
+            </View>
           </View>
-          <StyledText
-            variant="body"
-            weight="regular"
-            style={styles.deliveryTime}
-          >
-            • {restaurant.deliveryTime}
-          </StyledText>
         </View>
-        <StyledText
-          variant="body"
-          weight="regular"
-          style={styles.restaurantDescription}
-        >
-          {restaurant.description}
-        </StyledText>
-      </View>
 
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.messageButton}>
-          <StyledText
-            variant="button"
-            weight="semibold"
-            style={styles.messageButtonText}
-          >
-            Send message
-          </StyledText>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.callButton}>
-          <StyledText
-            variant="button"
-            weight="semibold"
-            style={styles.callButtonText}
-          >
-            Call
-          </StyledText>
-        </TouchableOpacity>
-      </View>
-
-      {/* Category Filters */}
-      <View style={styles.categoriesContainer}>
-        <FlatList
-          data={categories}
-          renderItem={renderCategoryButton}
-          keyExtractor={(item) => item}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesList}
-        />
-      </View>
-
-      {/* Meals List */}
-      <View style={styles.mealsContainer}>
-        <FlatList
-          data={filteredMeals}
-          renderItem={renderMealCard}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </ScrollView>
+        {/* Meals Section */}
+        <View style={styles.mealsSection}>
+          <Text style={styles.sectionTitle}>Menu</Text>
+          {meals.length > 0 ? (
+            <FlatList
+              data={meals}
+              renderItem={renderMealItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View style={styles.emptyMenu}>
+              <Ionicons name="restaurant" size={48} color="#CCC" />
+              <Text style={styles.emptyMenuText}>No meals available</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -424,7 +216,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.myDefinedColors.background,
-    marginTop: StatusBar.currentHeight,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.myDefinedColors.background,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.myDefinedColors.background,
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#666",
+    textAlign: "center",
+    marginVertical: 16,
+  },
+  retryButton: {
+    backgroundColor: "#FF6B35",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
   header: {
     flexDirection: "row",
@@ -433,34 +259,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "transparent",
   },
   backButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "600",
     color: "#1A1A1A",
-    flex: 1,
-    textAlign: "center",
-    marginHorizontal: 12,
   },
-  moreButton: {
+  placeholder: {
     width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F5F5F5",
-    alignItems: "center",
-    justifyContent: "center",
   },
-  imageView: {
-    marginHorizontal: 15,
+  restaurantInfo: {
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 16,
+    marginBottom: 20,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   restaurantImage: {
     width: "100%",
@@ -468,175 +290,116 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   restaurantDetails: {
-    backgroundColor: Colors.myDefinedColors.background,
     padding: 16,
-    marginBottom: 16,
   },
   restaurantName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#1A1A1A",
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  restaurantStats: {
-    backgroundColor: Colors.myDefinedColors.background,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  ratingContainer: {
-    backgroundColor: Colors.myDefinedColors.background,
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  ratingText: {
-    fontSize: 14,
-    color: "#1A1A1A",
-    marginLeft: 4,
-  },
-  deliveryTime: {
-    fontSize: 14,
+  restaurantLocation: {
+    fontSize: 16,
     color: "#666",
+    marginBottom: 12,
   },
   restaurantDescription: {
     fontSize: 14,
     color: "#666",
     lineHeight: 20,
+    marginBottom: 16,
   },
-  actionButtons: {
-    backgroundColor: Colors.myDefinedColors.background,
+  restaurantStats: {
     flexDirection: "row",
-    gap: 12,
-    paddingHorizontal: 16,
-    marginBottom: 20,
+    justifyContent: "space-between",
   },
-  messageButton: {
-    flex: 1,
-    backgroundColor: Colors.myDefinedColors.green,
-    borderWidth: 1,
-    borderColor: Colors.myDefinedColors.green,
-    paddingVertical: 12,
-    borderRadius: 8,
+  statItem: {
+    flexDirection: "row",
     alignItems: "center",
   },
-  messageButtonText: {
-    color: Colors.myDefinedColors.white,
-    fontSize: 14,
+  statText: {
+    fontSize: 16,
     fontWeight: "600",
+    color: "#1A1A1A",
+    marginLeft: 4,
   },
-  callButton: {
-    flex: 1,
-    backgroundColor: Colors.myDefinedColors.white,
-    borderColor: Colors.myDefinedColors.green,
-    borderWidth: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  callButtonText: {
-    color: Colors.myDefinedColors.brown,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  categoriesContainer: {
-    backgroundColor: Colors.myDefinedColors.background,
-    marginBottom: 20,
-  },
-  categoriesList: {
-    paddingHorizontal: 16,
-  },
-  categoryButton: {
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 12,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-  },
-  categoryButtonActive: {
-    backgroundColor: "#FF6B35",
-    borderColor: "#FF6B35",
-  },
-  categoryButtonText: {
+  statLabel: {
     fontSize: 14,
     color: "#666",
+    marginLeft: 4,
   },
-  categoryButtonTextActive: {
-    color: "#FFFFFF",
-  },
-  mealsContainer: {
-    backgroundColor: Colors.myDefinedColors.background,
+  mealsSection: {
+    backgroundColor: "transparent",
     paddingHorizontal: 16,
-    paddingBottom: 20,
   },
-  mealCard: {
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1A1A1A",
+    marginBottom: 16,
+  },
+  mealItem: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    padding: 12,
     marginBottom: 12,
+    padding: 16,
+    flexDirection: "row",
   },
   mealImage: {
-    width: "100%",
-    height: 160,
+    width: 80,
+    height: 80,
     borderRadius: 8,
-    marginBottom: 12,
-    resizeMode: "cover",
+    marginRight: 12,
   },
   mealInfo: {
-    backgroundColor: Colors.myDefinedColors.white,
+    flex: 1,
     justifyContent: "space-between",
   },
   mealName: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#1A1A1A",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   mealDescription: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#666",
+    lineHeight: 18,
     marginBottom: 8,
-    lineHeight: 16,
+  },
+  mealFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   mealPrice: {
     fontSize: 16,
     fontWeight: "600",
     color: "#4CAF50",
-    marginBottom: 12,
   },
-  mealActions: {
-    backgroundColor: Colors.myDefinedColors.white,
-    flexDirection: "row",
-    gap: 8,
-  },
-  orderNowButton: {
+  addButton: {
     backgroundColor: "#FF6B35",
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 16,
-    flex: 1,
+    borderRadius: 8,
+    minWidth: 60,
     alignItems: "center",
   },
-  orderNowButtonText: {
+  addButtonDisabled: {
+    opacity: 0.6,
+  },
+  addButtonText: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
   },
-  addToCartButton: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#FF6B35",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    flex: 1,
+  emptyMenu: {
     alignItems: "center",
+    paddingVertical: 40,
   },
-  addToCartButtonText: {
-    color: "#FF6B35",
-    fontSize: 12,
-    fontWeight: "600",
+  emptyMenuText: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 12,
   },
 });

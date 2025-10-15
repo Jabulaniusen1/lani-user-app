@@ -15,21 +15,31 @@ import AppleLogo from "@/components/icons/AppleLogo";
 import { useSession } from "@/auth/ctx";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color } from "@/constants/Colour";
+import LoadingButton from "@/components/LoadingButton";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const { login } = useSession();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill in all fields");
       return;
-    } else {
-      login(email, password);
-      router.replace("/(tabs)");
+    }
+    
+    setIsLoading(true);
+    try {
+      await login(email, password);
+      // Navigation will be handled by the auth state change
+    } catch (error) {
+      // Error notification is already handled in the auth context
+      console.log('Login failed:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -119,9 +129,12 @@ export default function LoginForm() {
           </Pressable>
           <Text style={styles.checkboxText}>Keep me logged in</Text>
         </View> */}
-          <Pressable style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </Pressable>
+          <LoadingButton
+            title="Login"
+            onPress={handleLogin}
+            loading={isLoading}
+            style={styles.loginButton}
+          />
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>Or log in with</Text>

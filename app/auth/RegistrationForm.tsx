@@ -14,6 +14,7 @@ import AppleLogo from "@/components/icons/AppleLogo";
 import { useSession } from "../../auth/ctx";
 import { Color } from "@/constants/Colour";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LoadingButton from "@/components/LoadingButton";
 
 export default function RegistrationForm() {
   const { register } = useSession();
@@ -22,6 +23,7 @@ export default function RegistrationForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,12 +51,20 @@ export default function RegistrationForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const isValid = validateForm();
 
     if (isValid) {
-      register(email, password);
-      router.replace("/(tabs)");
+      setIsLoading(true);
+      try {
+        await register(email, password);
+        // Navigation will be handled by the auth state change
+      } catch (error) {
+        // Error notification is already handled in the auth context
+        console.log('Registration failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -133,16 +143,12 @@ export default function RegistrationForm() {
       </View>
 
       {/* Continue */}
-      <Pressable
-        style={({ pressed }) =>
-          pressed
-            ? [styles.continueButton, styles.pressed]
-            : styles.continueButton
-        }
+      <LoadingButton
+        title="Continue"
         onPress={handleContinue}
-      >
-        <Text style={styles.continueButtonText}>Continue</Text>
-      </Pressable>
+        loading={isLoading}
+        style={styles.continueButton}
+      />
 
       {/* Continue as Guest */}
       <Pressable style={styles.guestButton} onPress={handleContinueAsGuest}>

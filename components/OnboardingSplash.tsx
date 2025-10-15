@@ -91,14 +91,14 @@ export default function OnboardingSplash({ onComplete }: OnboardingSplashProps) 
         animated: true,
       });
     } else {
-      // Navigate to registration on the last slide
-      router.push('/auth/register');
+      // Complete onboarding
+      onComplete();
     }
   };
 
   const handleSkip = async () => {
-    // Navigate to registration when skipping
-    router.push('/auth/register');
+    // Complete onboarding when skipping
+    onComplete();
   };
 
   const handleSkipLongPress = async () => {

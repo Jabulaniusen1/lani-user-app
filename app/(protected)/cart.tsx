@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, ScrollView, Pressable, Image, View, Text, StatusBar } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,13 +8,19 @@ import { Color } from '@/constants/Colour';
 // import StyledText from '@/components/StyledText';
 import { useCart } from '@/components/CartContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LoadingButton from '@/components/LoadingButton';
 
 export default function CartScreen() {
   const { state, removeItem, updateQuantity, clearCart } = useCart();
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  const handleCheckout = () => {
-    // Navigate to checkout page
-    router.push('/(protected)/checkout');
+  const handleCheckout = async () => {
+    setIsNavigating(true);
+    // Simulate brief loading for better UX
+    setTimeout(() => {
+      router.push('/(protected)/checkout');
+      setIsNavigating(false);
+    }, 300);
   };
 
   const handleRemoveItem = (id: string) => {
@@ -157,14 +163,12 @@ export default function CartScreen() {
           </Text>
         </View>
         
-        <Pressable 
-          style={styles.checkoutButton}
+        <LoadingButton
+          title="Checkout"
           onPress={handleCheckout}
-        >
-          <Text  style={styles.checkoutButtonText}>
-            Checkout
-          </Text>
-        </Pressable>
+          loading={isNavigating}
+          style={styles.checkoutButton}
+        />
       </View>
     </SafeAreaView>
   );

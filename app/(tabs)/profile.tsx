@@ -16,75 +16,118 @@ import StyledText from "@/components/StyledText";
 import Colors from "@/constants/Colors";
 import { useSession } from "@/auth/ctx";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LoadingButton from "@/components/LoadingButton";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ProfileScreen() {
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-  const { logout } = useSession();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { session, logout } = useSession();
+  const { colors, isDark, themeMode, setThemeMode, toggleTheme } = useTheme();
 
   function logoutHandler() {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
         text: "Logout",
-        onPress: () => {
-          logout();
-          router.replace("/auth/LoginForm");
+        onPress: async () => {
+          setIsLoggingOut(true);
+          await logout();
+          // Navigation will be handled by auth state change
+          setIsLoggingOut(false);
         },
       },
       {
         text: "Cancel",
-        onPress: () => router.replace("/(tabs)"),
+        style: "cancel",
       },
     ]);
   }
 
-  const profileMenuItems = [
+  function loginHandler() {
+    router.push("/auth/LoginForm");
+  }
+
+  function signupHandler() {
+    router.push("/auth/RegistrationForm");
+  }
+
+  const profileMenuItems = session ? [
     {
       id: "1",
       title: "Dark mode",
-      icon: "moon-outline",
+      icon: isDark ? "moon" : "moon-outline",
       action: null,
       showArrow: false,
       isSwitch: true,
-      switchValue: darkModeEnabled,
-      onSwitchChange: setDarkModeEnabled,
+      switchValue: isDark,
+      onSwitchChange: toggleTheme,
     },
     {
       id: "2",
+      title: "Theme",
+      icon: "color-palette-outline",
+      action: () => {
+        Alert.alert(
+          "Choose Theme",
+          "Select your preferred theme",
+          [
+            { text: "Cancel", style: "cancel" },
+            { 
+              text: "Light", 
+              onPress: () => setThemeMode('light'),
+              style: themeMode === 'light' ? 'default' : 'cancel'
+            },
+            { 
+              text: "Dark", 
+              onPress: () => setThemeMode('dark'),
+              style: themeMode === 'dark' ? 'default' : 'cancel'
+            },
+            { 
+              text: "System", 
+              onPress: () => setThemeMode('system'),
+              style: themeMode === 'system' ? 'default' : 'cancel'
+            },
+          ]
+        );
+      },
+      showArrow: true,
+    },
+    {
+      id: "3",
       title: "Orders",
       icon: "document-text-outline",
       action: () => console.log("Orders"),
       showArrow: true,
     },
     {
-      id: "3",
+      id: "4",
       title: "Settings",
       icon: "settings-outline",
       action: () => console.log("Settings"),
       showArrow: true,
     },
     {
-      id: "4",
+      id: "5",
       title: "Payment method",
       icon: "wallet-outline",
       action: () => console.log("Payment method"),
       showArrow: true,
     },
     {
-      id: "5",
+      id: "6",
       title: "Help",
       icon: "help-circle-outline",
       action: () => console.log("Help"),
       showArrow: true,
     },
     {
-      id: "6",
+      id: "7",
       title: "Privacy policy",
       icon: "shield-checkmark-outline",
       action: () => console.log("Privacy policy"),
       showArrow: true,
     },
     {
-      id: "7",
+      id: "8",
       title: "Log out",
       icon: "log-out-outline",
       action: logoutHandler,
@@ -92,7 +135,69 @@ export default function ProfileScreen() {
       isDestructive: true,
     },
     {
-      id: "8",
+      id: "9",
+      title: "Sign in as a rider",
+      icon: "person-add-outline",
+      action: () => console.log("Sign in as a rider"),
+      showArrow: true,
+    },
+  ] : [
+    {
+      id: "1",
+      title: "Dark mode",
+      icon: isDark ? "moon" : "moon-outline",
+      action: null,
+      showArrow: false,
+      isSwitch: true,
+      switchValue: isDark,
+      onSwitchChange: toggleTheme,
+    },
+    {
+      id: "2",
+      title: "Theme",
+      icon: "color-palette-outline",
+      action: () => {
+        Alert.alert(
+          "Choose Theme",
+          "Select your preferred theme",
+          [
+            { text: "Cancel", style: "cancel" },
+            { 
+              text: "Light", 
+              onPress: () => setThemeMode('light'),
+              style: themeMode === 'light' ? 'default' : 'cancel'
+            },
+            { 
+              text: "Dark", 
+              onPress: () => setThemeMode('dark'),
+              style: themeMode === 'dark' ? 'default' : 'cancel'
+            },
+            { 
+              text: "System", 
+              onPress: () => setThemeMode('system'),
+              style: themeMode === 'system' ? 'default' : 'cancel'
+            },
+          ]
+        );
+      },
+      showArrow: true,
+    },
+    {
+      id: "3",
+      title: "Help",
+      icon: "help-circle-outline",
+      action: () => console.log("Help"),
+      showArrow: true,
+    },
+    {
+      id: "4",
+      title: "Privacy policy",
+      icon: "shield-checkmark-outline",
+      action: () => console.log("Privacy policy"),
+      showArrow: true,
+    },
+    {
+      id: "5",
       title: "Sign in as a rider",
       icon: "person-add-outline",
       action: () => console.log("Sign in as a rider"),
@@ -110,13 +215,14 @@ export default function ProfileScreen() {
         <Ionicons
           name={item.icon as any}
           size={24}
-          color={item.isDestructive ? "#FF3B30" : "#666"}
+          color={item.isDestructive ? colors.error : colors.textSecondary}
         />
         <StyledText
           variant="body"
           weight="medium"
           style={[
             styles.menuItemTitle,
+            { color: item.isDestructive ? colors.error : colors.text },
             item.isDestructive && styles.menuItemTitleDestructive,
           ]}
         >
@@ -128,47 +234,83 @@ export default function ProfileScreen() {
         <Switch
           value={item.switchValue}
           onValueChange={item.onSwitchChange}
-          trackColor={{ false: "#E0E0E0", true: "#FF6B35" }}
-          thumbColor={item.switchValue ? "#FFFFFF" : "#FFFFFF"}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.buttonText}
         />
       ) : item.showArrow ? (
-        <Ionicons name="chevron-forward" size={20} color="#CCC" />
+        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
       ) : null}
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
       <SafeAreaView>
         {/* Profile Section */}
-        <View style={styles.profileSection}>
-          <Image
-            source={{
-              uri: "https://avatar.iran.liara.run/public/girl?username=Annie",
-            }}
-            style={styles.profileImage}
-          />
-          <StyledText variant="title" weight="bold" style={styles.profileName}>
-            Annie Davies
-          </StyledText>
-          <TouchableOpacity style={styles.editProfileButton}>
-            <StyledText
-              variant="body"
-              weight="medium"
-              style={styles.editProfileText}
-            >
-              Edit profile {">"}
-            </StyledText>
-          </TouchableOpacity>
+        <View style={[styles.profileSection, { backgroundColor: colors.background }]}>
+          {session ? (
+            <>
+              <Image
+                source={{
+                  uri: "https://avatar.iran.liara.run/public/girl?username=Annie",
+                }}
+                style={styles.profileImage}
+              />
+              <StyledText variant="title" weight="bold" style={[styles.profileName, { color: colors.text }]}>
+                Annie Davies
+              </StyledText>
+              <TouchableOpacity style={styles.editProfileButton}>
+                <StyledText
+                  variant="body"
+                  weight="medium"
+                  style={[styles.editProfileText, { color: colors.primary }]}
+                >
+                  Edit profile {">"}
+                </StyledText>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <View style={[styles.guestProfileImage, { backgroundColor: colors.surface }]}>
+                <Ionicons name="person" size={40} color={colors.textSecondary} />
+              </View>
+              <StyledText variant="title" weight="bold" style={[styles.profileName, { color: colors.text }]}>
+                Welcome to Lani Eats!
+              </StyledText>
+              <StyledText variant="body" style={[styles.guestSubtitle, { color: colors.textSecondary }]}>
+                Sign in to access your profile and order history
+              </StyledText>
+              <View style={styles.authButtons}>
+                <TouchableOpacity style={[styles.loginButton, { backgroundColor: colors.primary }]} onPress={loginHandler}>
+                  <StyledText
+                    variant="body"
+                    weight="medium"
+                    style={[styles.loginButtonText, { color: colors.buttonText }]}
+                  >
+                    Login
+                  </StyledText>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.signupButton, { borderColor: colors.primary }]} onPress={signupHandler}>
+                  <StyledText
+                    variant="body"
+                    weight="medium"
+                    style={[styles.signupButtonText, { color: colors.primary }]}
+                  >
+                    Sign Up
+                  </StyledText>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
 
         {/* Menu Items */}
-        <View style={styles.menuSection}>
+        <View style={[styles.menuSection, { backgroundColor: colors.card }]}>
           {profileMenuItems.map((item) => (
             <View key={item.id}>
               {renderMenuItem({ item })}
               {item.id !== profileMenuItems[profileMenuItems.length - 1].id && (
-                <View style={styles.menuDivider} />
+                <View style={[styles.menuDivider, { backgroundColor: colors.divider }]} />
               )}
             </View>
           ))}
@@ -241,5 +383,53 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#F0F0F0",
     marginHorizontal: 20,
+  },
+  guestProfileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#F0F0F0",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  guestSubtitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  authButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  loginButton: {
+    backgroundColor: "#FF6B35",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: "center",
+  },
+  loginButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  signupButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#FF6B35",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: "center",
+  },
+  signupButtonText: {
+    color: "#FF6B35",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

@@ -11,14 +11,17 @@ import {
   Text,
   Pressable,
   ImageSourcePropType,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "@/components/CartContext";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { Color } from "../../constants/Colour";
+import { useSession } from "@/auth/ctx";
+import LoadingButton from "@/components/LoadingButton";
+import { useData } from "@/contexts/DataContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Dummy data for restaurants
 // const popularRestaurants = [
@@ -99,38 +102,18 @@ import { Color } from "../../constants/Colour";
 //   },
 // ];
 
-interface PopularResturant {
-  id: string;
-  name: string;
-  location: string;
-  image: ImageSourcePropType;
-  rating: number;
-  reviews: number;
-  deliveryTime: string;
-}
-
-interface TopMeal {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  image: ImageSourcePropType;
-  restaurant: string;
-}
+import { Restaurant, Meal } from "@/redux/lani_eats";
 
 export default function HomeScreen() {
   const { addItem, state } = useCart();
+  const { session } = useSession();
+  const { popularRestaurants, topMeals, loadingRestaurants, loadingMeals } = useData();
+  const { colors, isDark } = useTheme();
   const scrollViewRef = React.useRef<FlatList>(null);
   const [currentRestaurantIndex, setCurrentRestaurantIndex] =
     useState<number>(0);
   const [image, setImage] = useState<string | null>(null);
-
-  //=============================REDUX STATE===============================//
-  const popularRestaurants = useSelector(
-    (state: RootState) => state.eats.popularResturants
-  );
-  const topMeals = useSelector((state: RootState) => state.eats.topMeal);
-  //===============================END==================================//
+  const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
 
   //=====THIS FUNCTION ALLOWS A USER CHOOSE A PHOTO FROM THE GALLERY=====//
   const pickImage = async () => {
@@ -178,10 +161,10 @@ export default function HomeScreen() {
   };
 
   //=======FLATLIST RENDERS THE POPULAR RESTURANT SECTION==========//
-  function renderRestaurantCard({ item }: { item: PopularResturant }) {
+  function renderRestaurantCard({ item }: { item: Restaurant }) {
     return (
       <Pressable
-        style={styles.restaurantCard}
+        style={[styles.restaurantCard, { backgroundColor: colors.card }]}
         onPress={() =>
           router.push({
             pathname: "/restaurant/[id]",
@@ -191,90 +174,154 @@ export default function HomeScreen() {
           })
         }
       >
-        <Image source={item.image} style={styles.restaurantImage} />
-        <Text style={styles.restaurantName}>{item.name}</Text>
-        <Text style={styles.restaurantLocation}>{item.location}</Text>
+        <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+        <Text style={[styles.restaurantName, { color: colors.text }]}>{item.name}</Text>
+        <Text style={[styles.restaurantLocation, { color: colors.textSecondary }]}>{item.location}</Text>
       </Pressable>
     );
   }
 
   //=======FLATLIST RENDERS THE TOP MEAL SECTION==========//
-  const renderMealCard = ({ item }: { item: TopMeal }) => (
+  const renderMealCard = ({ item }: { item: Meal }) => (
     <Pressable
-      style={styles.mealCard}
+      style={[styles.mealCard, { backgroundColor: colors.card }]}
       onPress={() => router.push(`/meal/${item.id}`)}
     >
-      <Image source={item.image} style={styles.mealImage} />
+      <Image source={{ uri: item.image }} style={styles.mealImage} />
       <View style={styles.mealInfo}>
-        <Text style={styles.mealName}>{item.name}</Text>
-        <Text style={styles.mealDescription}>{item.description}</Text>
-        <Text style={styles.mealPrice}>{item.price}</Text>
+        <Text style={[styles.mealName, { color: colors.text }]}>{item.name}</Text>
+        <Text style={[styles.mealDescription, { color: colors.textSecondary }]}>{item.description}</Text>
+        <Text style={[styles.mealPrice, { color: colors.price }]}>₦{item.price.toLocaleString()}</Text>
         <View style={styles.mealActions}>
           <Pressable
-            style={styles.orderNowButton}
+            style={[styles.orderNowButton, { backgroundColor: colors.primary }]}
             onPress={() => router.push(`/meal/${item.id}`)}
           >
-            <Text style={styles.orderNowButtonText}>Order now</Text>
+            <Text style={[styles.orderNowButtonText, { color: colors.buttonText }]}>Order now</Text>
           </Pressable>
           <Pressable
-            style={styles.addToCartButton}
-            onPress={() => {
-              addItem({
-                id: item.id,
-                name: item.name,
-                price: item.price,
-                image: item.image,
-                restaurant: item.restaurant,
-                quantity: 1,
-              });
+            style={[styles.addToCartButton, { borderColor: colors.primary }]}
+            onPress={async () => {
+              if (!session) {
+                // Show alert to login
+                Alert.alert(
+                  "Login Required",
+                  "Please login to add items to your cart and place orders.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { 
+                      text: "Login", 
+                      onPress: () => router.push("/auth/LoginForm") 
+                    },
+                    { 
+                      text: "Sign Up", 
+                      onPress: () => router.push("/auth/RegistrationForm") 
+                    }
+                  ]
+                );
+                return;
+              }
+              
+              setIsAddingToCart(item.id);
+              // Simulate a brief loading state for better UX
+              setTimeout(() => {
+                addItem({
+                  id: item.id,
+                  name: item.name,
+                  price: `₦${item.price.toLocaleString()}`,
+                  image: { uri: item.image },
+                  restaurant: item.restaurantName,
+                  quantity: 1,
+                });
+                setIsAddingToCart(null);
+              }, 500);
             }}
+            disabled={isAddingToCart === item.id}
           >
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            {isAddingToCart === item.id ? (
+              <Text style={[styles.addToCartButtonText, { color: colors.primary }]}>Adding...</Text>
+            ) : (
+              <Text style={[styles.addToCartButtonText, { color: colors.primary }]}>Add to Cart</Text>
+            )}
           </Pressable>
         </View>
       </View>
     </Pressable>
   );
 
+  // Show loading state
+  if (loadingRestaurants || loadingMeals) {
+    return (
+      <View style={[styles.container, styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <StatusBar backgroundColor={colors.background} barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <SafeAreaView style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading delicious meals...</Text>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar backgroundColor={Color.background} />
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+      <StatusBar backgroundColor={colors.background} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <SafeAreaView>
         <View style={styles.headerSection}>
           <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeText}>Welcome, Annie</Text>
+            <Text style={[styles.welcomeText, { color: colors.text }]}>
+              {session ? "Welcome back!" : "Welcome to Lani Eats!"}
+            </Text>
             <View style={styles.locationSection}>
-              <Ionicons name="location" size={16} color="#4CAF50" />
-              <Text style={styles.locationText}>Ewet Housing Estate</Text>
+              <Ionicons name="location" size={16} color={colors.delivery} />
+              <Text style={[styles.locationText, { color: colors.textSecondary }]}>Ewet Housing Estate</Text>
             </View>
           </View>
           <View style={styles.headerActions}>
-            <Pressable style={styles.profileButton} onPress={pickImage}>
-              {image ? (
-                <Image source={{ uri: image }} style={styles.profileImage} />
-              ) : (
-                <Image
-                  source={{
-                    uri: "https://avatar.iran.liara.run/public/boy?username=Ash",
-                  }}
-                  style={styles.profileImage}
-                />
-              )}
-            </Pressable>
-            <Pressable
-              style={styles.cartButton}
-              onPress={() => router.push("/(protected)/cart")}
-            >
-              <Ionicons name="cart" size={24} color="#333" />
-              {/* {state.totalItems > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{state.totalItems}</Text>
-                </View>
-              )} */}
-            </Pressable>
-            <Pressable style={styles.notificationButton}>
-              <Ionicons name="notifications" size={24} color="#333" />
-            </Pressable>
+            {session ? (
+              <>
+                <Pressable style={styles.profileButton} onPress={pickImage}>
+                  {image ? (
+                    <Image source={{ uri: image }} style={styles.profileImage} />
+                  ) : (
+                    <Image
+                      source={{
+                        uri: "https://avatar.iran.liara.run/public/boy?username=Ash",
+                      }}
+                      style={styles.profileImage}
+                    />
+                  )}
+                </Pressable>
+                <Pressable
+                  style={styles.cartButton}
+                  onPress={() => router.push("/(protected)/cart")}
+                >
+                  <Ionicons name="cart" size={24} color={colors.text} />
+                  {/* {state.totalItems > 0 && (
+                    <View style={styles.cartBadge}>
+                      <Text style={styles.cartBadgeText}>{state.totalItems}</Text>
+                    </View>
+                  )} */}
+                </Pressable>
+                <Pressable style={styles.notificationButton}>
+                  <Ionicons name="notifications" size={24} color={colors.text} />
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable
+                  style={[styles.loginButton, { backgroundColor: colors.primary }]}
+                  onPress={() => router.push("/auth/LoginForm")}
+                >
+                  <Text style={[styles.loginButtonText, { color: colors.buttonText }]}>Login</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.signupButton, { borderColor: colors.primary }]}
+                  onPress={() => router.push("/auth/RegistrationForm")}
+                >
+                  <Text style={[styles.signupButtonText, { color: colors.primary }]}>Sign Up</Text>
+                </Pressable>
+              </>
+            )}
           </View>
         </View>
         <View style={styles.bannerSection}>
@@ -285,11 +332,12 @@ export default function HomeScreen() {
         </View>
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular Restaurants</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular Restaurants</Text>
             <View style={styles.navigationArrows}>
               <Pressable
                 style={[
                   styles.arrowButton,
+                  { backgroundColor: colors.card },
                   currentRestaurantIndex === 0 && styles.arrowButtonDisabled,
                 ]}
                 onPress={handlePreviousRestaurants}
@@ -298,12 +346,13 @@ export default function HomeScreen() {
                 <Ionicons
                   name="chevron-back"
                   size={20}
-                  color={currentRestaurantIndex === 0 ? "#CCC" : "#333"}
+                  color={currentRestaurantIndex === 0 ? colors.textTertiary : colors.text}
                 />
               </Pressable>
               <Pressable
                 style={[
                   styles.arrowButton,
+                  { backgroundColor: colors.card },
                   currentRestaurantIndex >=
                     Math.max(0, popularRestaurants.length - 2) &&
                     styles.arrowButtonDisabled,
@@ -320,8 +369,8 @@ export default function HomeScreen() {
                   color={
                     currentRestaurantIndex >=
                     Math.max(0, popularRestaurants.length - 2)
-                      ? "#CCC"
-                      : "#333"
+                      ? colors.textTertiary
+                      : colors.text
                   }
                 />
               </Pressable>
@@ -330,7 +379,7 @@ export default function HomeScreen() {
           <View
             style={{
               paddingVertical: 10,
-              backgroundColor: Color.background,
+              backgroundColor: colors.background,
             }}
           >
             <FlatList
@@ -347,7 +396,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Top Meals</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Top Meals</Text>
           </View>
           <FlatList
             data={topMeals}
@@ -365,7 +414,7 @@ export default function HomeScreen() {
 const shadow = Platform.select({
   android: { elevation: 4 },
   ios: {
-    shadowColor: Color.black,
+    shadowColor: "#000000",
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.65,
     shadowRadius: 4,
@@ -375,7 +424,7 @@ const shadow = Platform.select({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.background,
+    backgroundColor: "#F5F5F5",
     marginTop: StatusBar.currentHeight,
   },
   headerSection: {
@@ -395,7 +444,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Bricolage-24pt-bold",
     fontWeight: "bold",
-    color: Color.black,
+    color: "#000000",
     marginBottom: 6,
   },
   locationSection: {
@@ -480,7 +529,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginBottom: 24,
-    backgroundColor: Color.background,
+    backgroundColor: "#F5F5F5",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -488,7 +537,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: Color.background,
+    backgroundColor: "#F5F5F5",
   },
   sectionTitle: {
     fontFamily: "Bricolage-24pt-bold",
@@ -517,7 +566,7 @@ const styles = StyleSheet.create({
   },
   restaurantCard: {
     width: 160,
-    backgroundColor: Color.white,
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
@@ -612,5 +661,42 @@ const styles = StyleSheet.create({
     color: "#FF6B35",
     fontSize: 16,
     fontWeight: "600",
+  },
+  loginButton: {
+    backgroundColor: "#FF6B35",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  loginButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  signupButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#FF6B35",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  signupButtonText: {
+    color: "#FF6B35",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
   },
 });

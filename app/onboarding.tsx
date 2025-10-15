@@ -28,10 +28,18 @@ export default function OnboardingScreen() {
     }
   };
 
-  const handleOnboardingComplete = () => {
-    setIsComplete(true);
-    // Navigate to the main app
-    router.replace('/(tabs)');
+  const handleOnboardingComplete = async () => {
+    try {
+      // Mark onboarding as complete
+      await AsyncStorage.setItem('onboardingComplete', 'true');
+      setIsComplete(true);
+      // Navigate to home screen
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.log('Error saving onboarding status:', error);
+      // Still navigate even if saving fails
+      router.replace('/(tabs)');
+    }
   };
 
   if (isLoading) {

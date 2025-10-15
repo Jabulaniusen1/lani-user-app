@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -7,27 +7,80 @@ import {
   View,
   Text,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Color } from "@/constants/Colour";
+import { useSession } from "@/auth/ctx";
+import LoadingButton from "@/components/LoadingButton";
 
 // import { View } from '@/components/Themed';
 // import StyledText from "@/components/StyledText";
 
 export default function CheckoutScreen() {
+  const { session, logout } = useSession();
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [houseAddress, setHouseAddress] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCheckout = () => {
-    // Implement checkout functionality
-    console.log("Proceeding to checkout with:", {
-      fullName,
-      phoneNumber,
-      houseAddress,
-    });
-    // You can navigate to payment or order confirmation here
+  useEffect(() => {
+    if (!session) {
+      Alert.alert(
+        "Authentication Required",
+        "You need to be logged in to access checkout. Please login to continue.",
+        [
+          { text: "Cancel", onPress: () => router.back() },
+          { text: "Login", onPress: () => router.push("/auth/LoginForm") },
+          { text: "Sign Up", onPress: () => router.push("/auth/RegistrationForm") }
+        ]
+      );
+    }
+  }, [session]);
+
+  const handleCheckout = async () => {
+    if (!session) {
+      Alert.alert(
+        "Authentication Required",
+        "Please login to complete your order.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Login", onPress: () => router.push("/auth/LoginForm") }
+        ]
+      );
+      return;
+    }
+
+    setIsProcessing(true);
+    // Simulate checkout processing
+    setTimeout(() => {
+      console.log("Proceeding to checkout with:", {
+        fullName,
+        phoneNumber,
+        houseAddress,
+      });
+      // You can navigate to payment or order confirmation here
+      setIsProcessing(false);
+      Alert.alert("Success", "Your order has been placed successfully!");
+    }, 2000);
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Logout", 
+          onPress: async () => {
+            await logout();
+            router.replace("/(tabs)");
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -36,8 +89,10 @@ export default function CheckoutScreen() {
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </Pressable>
-        <Text> Checkout</Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.headerTitle}>Checkout</Text>
+        <Pressable style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={24} color="#FF6B35" />
+        </Pressable>
       </View>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.currentAddressCard}>
@@ -95,9 +150,12 @@ export default function CheckoutScreen() {
         </View>
       </ScrollView>
       <View style={styles.bottomSection}>
-        <Pressable style={styles.checkoutButton} onPress={handleCheckout}>
-          <Text style={styles.checkoutButtonText}>Checkout</Text>
-        </Pressable>
+        <LoadingButton
+          title="Checkout"
+          onPress={handleCheckout}
+          loading={isProcessing}
+          style={styles.checkoutButton}
+        />
       </View>
     </SafeAreaView>
   );
@@ -131,8 +189,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1A1A1A",
   },
-  placeholder: {
+  logoutButton: {
     width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
   },
   content: {
     flex: 1,
