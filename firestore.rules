@@ -1,26 +1,62 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read access to restaurants collection
+    
+    // ======================
+    // Restaurants Collection
+    // ======================
     match /restaurants/{restaurantId} {
+      // Allow read access to all restaurants (for public browsing)
       allow read: if true;
-      allow write: if false; // Only allow reads for now
+      // Only allow writes for authenticated users (for admin purposes)
+      allow write: if request.auth != null;
+      
+      // ======================
+      // Menus Subcollection
+      // ======================
+      match /menus/{menuId} {
+        // Allow read access to all menu items (for public browsing)
+        allow read: if true;
+        // Only allow writes for authenticated users (for admin purposes)
+        allow write: if request.auth != null;
+      }
     }
     
-    // Allow read access to meals collection
-    match /meals/{mealId} {
-      allow read: if true;
-      allow write: if false; // Only allow reads for now
-    }
-    
-    // Allow read/write access to orders for authenticated users
+    // ======================
+    // Orders Collection
+    // ======================
     match /orders/{orderId} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Customers can create orders
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      
+      // Users can read their own orders
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      
+      // No updates or deletes for now
+      allow update, delete: if false;
     }
     
-    // Allow read/write access to user profiles for authenticated users
+    // ======================
+    // Users Collection
+    // ======================
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ======================
+    // Collection Group Queries (for menus subcollections)
+    // ======================
+    match /{path=**}/menus/{menuId} {
+      allow read: if true;
+    }
+    
+    // ======================
+    // Temporary: Allow all reads for development (REMOVE IN PRODUCTION)
+    // ======================
+    match /{document=**} {
+      allow read: if true;
     }
   }
 }

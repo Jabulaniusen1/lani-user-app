@@ -13,13 +13,13 @@ import {
   ImageSourcePropType,
   Alert,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "@/components/CartContext";
 import { useSession } from "@/auth/ctx";
-import LoadingButton from "@/components/LoadingButton";
 import { useData } from "@/contexts/DataContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -109,6 +109,14 @@ export default function HomeScreen() {
   const { session } = useSession();
   const { popularRestaurants, topMeals, loadingRestaurants, loadingMeals } = useData();
   const { colors, isDark } = useTheme();
+
+  console.log('🏠 [HomeScreen] Component rendered with data:', {
+    popularRestaurantsCount: popularRestaurants.length,
+    topMealsCount: topMeals.length,
+    loadingRestaurants,
+    loadingMeals,
+    hasSession: !!session
+  });
   const scrollViewRef = React.useRef<FlatList>(null);
   const [currentRestaurantIndex, setCurrentRestaurantIndex] =
     useState<number>(0);
@@ -162,6 +170,15 @@ export default function HomeScreen() {
 
   //=======FLATLIST RENDERS THE POPULAR RESTURANT SECTION==========//
   function renderRestaurantCard({ item }: { item: Restaurant }) {
+    console.log('🏠 [HomeScreen] Rendering restaurant card:', {
+      id: item.id,
+      name: item.name,
+      coverImage: item.coverImage,
+      image: item.image,
+      address: item.address,
+      location: item.location
+    });
+    
     return (
       <Pressable
         style={[styles.restaurantCard, { backgroundColor: colors.card }]}
@@ -174,9 +191,9 @@ export default function HomeScreen() {
           })
         }
       >
-        <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+        <Image source={{ uri: item.coverImage || item.image }} style={styles.restaurantImage} />
         <Text style={[styles.restaurantName, { color: colors.text }]}>{item.name}</Text>
-        <Text style={[styles.restaurantLocation, { color: colors.textSecondary }]}>{item.location}</Text>
+        <Text style={[styles.restaurantLocation, { color: colors.textSecondary }]}>{item.address || item.location}</Text>
       </Pressable>
     );
   }
@@ -194,13 +211,22 @@ export default function HomeScreen() {
         <Text style={[styles.mealPrice, { color: colors.price }]}>₦{item.price.toLocaleString()}</Text>
         <View style={styles.mealActions}>
           <Pressable
-            style={[styles.orderNowButton, { backgroundColor: colors.primary }]}
+            style={({ pressed }) => [
+              styles.orderNowButton, 
+              { backgroundColor: colors.primary },
+              pressed && styles.buttonPressed
+            ]}
             onPress={() => router.push(`/meal/${item.id}`)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={[styles.orderNowButtonText, { color: colors.buttonText }]}>Order now</Text>
           </Pressable>
           <Pressable
-            style={[styles.addToCartButton, { borderColor: colors.primary }]}
+            style={({ pressed }) => [
+              styles.addToCartButton, 
+              { borderColor: colors.primary },
+              pressed && styles.buttonPressed
+            ]}
             onPress={async () => {
               if (!session) {
                 // Show alert to login
@@ -279,7 +305,14 @@ export default function HomeScreen() {
           <View style={styles.headerActions}>
             {session ? (
               <>
-                <Pressable style={styles.profileButton} onPress={pickImage}>
+                <Pressable 
+                  style={({ pressed }) => [
+                    styles.profileButton,
+                    pressed && styles.buttonPressed
+                  ]} 
+                  onPress={pickImage}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
                   {image ? (
                     <Image source={{ uri: image }} style={styles.profileImage} />
                   ) : (
@@ -292,8 +325,12 @@ export default function HomeScreen() {
                   )}
                 </Pressable>
                 <Pressable
-                  style={styles.cartButton}
+                  style={({ pressed }) => [
+                    styles.cartButton,
+                    pressed && styles.buttonPressed
+                  ]}
                   onPress={() => router.push("/(protected)/cart")}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Ionicons name="cart" size={24} color={colors.text} />
                   {/* {state.totalItems > 0 && (
@@ -302,21 +339,37 @@ export default function HomeScreen() {
                     </View>
                   )} */}
                 </Pressable>
-                <Pressable style={styles.notificationButton}>
+                <Pressable 
+                  style={({ pressed }) => [
+                    styles.notificationButton,
+                    pressed && styles.buttonPressed
+                  ]}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
                   <Ionicons name="notifications" size={24} color={colors.text} />
                 </Pressable>
               </>
             ) : (
               <>
                 <Pressable
-                  style={[styles.loginButton, { backgroundColor: colors.primary }]}
+                  style={({ pressed }) => [
+                    styles.loginButton, 
+                    { backgroundColor: colors.primary },
+                    pressed && styles.buttonPressed
+                  ]}
                   onPress={() => router.push("/auth/LoginForm")}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Text style={[styles.loginButtonText, { color: colors.buttonText }]}>Login</Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.signupButton, { borderColor: colors.primary }]}
+                  style={({ pressed }) => [
+                    styles.signupButton, 
+                    { borderColor: colors.primary },
+                    pressed && styles.buttonPressed
+                  ]}
                   onPress={() => router.push("/auth/RegistrationForm")}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Text style={[styles.signupButtonText, { color: colors.primary }]}>Sign Up</Text>
                 </Pressable>
@@ -384,7 +437,7 @@ export default function HomeScreen() {
           >
             <FlatList
               ref={scrollViewRef}
-              data={popularRestaurants}
+              data={popularRestaurants as any[]}
               renderItem={renderRestaurantCard}
               keyExtractor={(item) => item.id}
               horizontal
@@ -399,9 +452,9 @@ export default function HomeScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Top Meals</Text>
           </View>
           <FlatList
-            data={topMeals}
+            data={topMeals as any[]}
             renderItem={renderMealCard}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id?.toString?.() || String(item.id)}
             scrollEnabled={false}
             showsVerticalScrollIndicator={false}
           />
@@ -464,10 +517,12 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   profileButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44, // Increased for better touch target
+    height: 44,
+    borderRadius: 22,
     overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   profileImage: {
     width: "100%",
@@ -475,9 +530,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   cartButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44, // Increased for better touch target
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
@@ -500,9 +555,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   notificationButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44, // Increased for better touch target
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
@@ -641,6 +696,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44, // iOS minimum touch target
   },
   orderNowButtonText: {
     color: "#FFFFFF",
@@ -656,6 +713,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44, // iOS minimum touch target
   },
   addToCartButtonText: {
     color: "#FF6B35",
@@ -668,6 +727,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     marginRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44, // iOS minimum touch target
   },
   loginButtonText: {
     color: "#FFFFFF",
@@ -681,6 +743,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44, // iOS minimum touch target
   },
   signupButtonText: {
     color: "#FF6B35",
@@ -698,5 +763,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     textAlign: "center",
+  },
+  // iOS-specific button improvements
+  buttonPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
 });

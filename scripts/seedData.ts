@@ -175,7 +175,7 @@ async function seedData() {
   }
 }
 
-// Uncomment the line below to run the seeding function
-// seedData();
+// Run the seeding function
+seedData();
 
 export { seedData };

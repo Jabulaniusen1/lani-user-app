@@ -9,6 +9,7 @@ import {
   Image,
   StatusBar,
   Animated,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -144,13 +145,14 @@ export default function OnboardingSplash({ onComplete }: OnboardingSplashProps) 
       
       {/* Header with Skip button */}
       {/* <View style={styles.header}>
-        <TouchableOpacity 
+        <Pressable 
           onPress={handleSkip} 
           onLongPress={handleSkipLongPress}
           style={styles.skipButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View> */}
 
       {/* Slides */}
@@ -171,18 +173,34 @@ export default function OnboardingSplash({ onComplete }: OnboardingSplashProps) 
         {renderDots()}
         
         <Animated.View style={{ opacity: fadeAnim }}>
-          <TouchableOpacity 
-            style={styles.downButtonsContainer} 
-            onPress={handleSkip} 
-            onLongPress={handleSkipLongPress}
+          <View style={styles.downButtonsContainer}>
+            <Pressable 
+              style={({ pressed }) => [
+                styles.skipButtonContainer,
+                pressed && styles.buttonPressed
+              ]}
+              onPress={handleSkip} 
+              onLongPress={handleSkipLongPress}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-            <Text style={styles.skipButtonText}>
-              {currentIndex === onboardingData.length - 1 ? 'Login' : 'Skip'}
-            </Text>
-            <Text style={styles.nextButtonText} onPress={handleNext}>
-              {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
-            </Text>
-          </TouchableOpacity>
+              <Text style={styles.skipButtonText}>
+                {currentIndex === onboardingData.length - 1 ? 'Login' : 'Skip'}
+              </Text>
+            </Pressable>
+            
+            <Pressable 
+              style={({ pressed }) => [
+                styles.nextButtonContainer,
+                pressed && styles.buttonPressed
+              ]}
+              onPress={handleNext}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Text style={styles.nextButtonText}>
+                {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
+              </Text>
+            </Pressable>
+          </View>
         </Animated.View>
       </View>
     </SafeAreaView>
@@ -271,23 +289,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 20,
   },
-  skipButtonText: {
-    color: '#FF6B35',
-    fontSize: 18,
-    fontWeight: '400',
-    width: '50%',
-    textAlign: 'center',
+  skipButtonContainer: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44, // iOS minimum touch target
   },
-  nextButtonText: {
-    color: '#FFFFFF',
-    width: '50%',
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '400',
+  nextButtonContainer: {
+    flex: 1,
     backgroundColor: '#FF6B35',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44, // iOS minimum touch target
     shadowColor: '#FF6B35',
     shadowOffset: {
       width: 0,
@@ -296,5 +312,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
+  },
+  skipButtonText: {
+    color: '#FF6B35',
+    fontSize: 18,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  nextButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  buttonPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
 });

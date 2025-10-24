@@ -11,11 +11,7 @@ const firebaseConfig = {
   appId: "1:819119575672:web:f0895157cfc1874601d38d",
   measurementId: "G-1G93JJ0B76"
 };
-
-
-// Initialize Firebase app only if it doesn't already exist
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 export { auth, db };

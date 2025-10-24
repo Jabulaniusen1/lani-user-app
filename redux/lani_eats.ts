@@ -3,14 +3,20 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface Restaurant {
   id: string;
   name: string;
-  location: string;
-  image: string;
-  rating: number;
-  reviews: number;
-  deliveryTime: string;
+  location?: string;
+  address?: string; // Restaurant address
+  image?: string;
+  coverImage?: string; // Restaurant cover photo
+  logo?: string; // Restaurant logo
+  rating?: number;
+  reviews?: number;
+  deliveryTime?: string;
   description?: string;
-  isOpen: boolean;
-  category: string;
+  isOpen?: boolean;
+  category?: string;
+  ownerId?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface Meal {

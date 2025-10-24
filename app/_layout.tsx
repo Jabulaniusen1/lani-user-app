@@ -63,6 +63,8 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { session } = useSession();
 
+  console.log('📱 [App] RootLayoutNav rendering with session:', !!session);
+
   return (
     <Provider store={store}>
       <ThemeProvider>
