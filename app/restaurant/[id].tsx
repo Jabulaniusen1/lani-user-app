@@ -14,6 +14,7 @@ import {
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCart } from '@/components/CartContext';
 import FirestoreService, { Restaurant, Meal } from '@/services/firestoreService';
 
 const { width, height } = Dimensions.get('window');
@@ -21,6 +22,7 @@ const { width, height } = Dimensions.get('window');
 export default function RestaurantDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors, isDark } = useTheme();
+  const { state, addItem, removeItem } = useCart();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,23 +69,77 @@ export default function RestaurantDetailScreen() {
     }
   };
 
-  const renderMealItem = ({ item }: { item: Meal }) => (
-    <Pressable
-      style={[styles.mealItem, { backgroundColor: colors.card }]}
-      onPress={() => router.push(`/meal/${item.id}`)}
-    >
-      <Image source={{ uri: item.image }} style={styles.mealItemImage} />
-      <View style={styles.mealItemInfo}>
-        <Text style={[styles.mealItemName, { color: colors.text }]}>{item.name}</Text>
-        <Text style={[styles.mealItemDescription, { color: colors.textSecondary }]} numberOfLines={2}>
-          {item.description}
-        </Text>
-        <Text style={[styles.mealItemPrice, { color: colors.price }]}>
-          ₦{item.price.toLocaleString()}
-        </Text>
-      </View>
-    </Pressable>
-  );
+  const renderMealItem = ({ item }: { item: Meal }) => {
+    const cartItem = state.items.find(cartItem => cartItem.id === item.id);
+    const quantityInCart = cartItem?.quantity || 0;
+    
+    const handleAddToCart = () => {
+      addItem({
+        id: item.id,
+        name: item.name,
+        price: `₦${item.price.toLocaleString()}`,
+        image: item.image,
+        restaurant: restaurant?.name || 'Unknown Restaurant',
+        quantity: 1
+      });
+    };
+
+    const handleRemoveFromCart = () => {
+      removeItem(item.id);
+    };
+
+    return (
+      <Pressable
+        style={[styles.mealItem, { backgroundColor: colors.card }]}
+        onPress={() => router.push(`/meal/${item.id}`)}
+      >
+        <Image source={{ uri: item.image }} style={styles.mealItemImage} />
+        <View style={styles.mealItemInfo}>
+          <Text style={[styles.mealItemName, { color: colors.text }]}>{item.name}</Text>
+          <Text style={[styles.mealItemDescription, { color: colors.textSecondary }]} numberOfLines={2}>
+            {item.description && item.description.trim() !== '' ? item.description : 'No description available'}
+          </Text>
+          <Text style={[styles.mealItemPrice, { color: colors.price }]}>
+            ₦{item.price.toLocaleString()}
+          </Text>
+        </View>
+        
+        {/* Cart Controls */}
+        <View style={styles.mealItemActions}>
+          {quantityInCart > 0 ? (
+            <View style={styles.cartControls}>
+              <Pressable
+                style={[styles.cartButton, styles.removeButton, { borderColor: colors.primary }]}
+                onPress={handleRemoveFromCart}
+              >
+                <Ionicons name="remove" size={16} color={colors.primary} />
+              </Pressable>
+              
+              <View style={[styles.quantityDisplay, { backgroundColor: colors.primary }]}>
+                <Text style={[styles.quantityText, { color: colors.buttonText }]}>
+                  {quantityInCart}
+                </Text>
+              </View>
+              
+              <Pressable
+                style={[styles.cartButton, styles.addButton, { backgroundColor: colors.primary }]}
+                onPress={handleAddToCart}
+              >
+                <Ionicons name="add" size={16} color={colors.buttonText} />
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              style={[styles.addToCartButton, { backgroundColor: colors.primary }]}
+              onPress={handleAddToCart}
+            >
+              <Ionicons name="cart" size={16} color={colors.buttonText} />
+            </Pressable>
+          )}
+        </View>
+      </Pressable>
+    );
+  };
 
   if (loading) {
     return (
@@ -374,6 +430,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginBottom: 8,
+    alignItems: 'center',
   },
   mealItemImage: {
     width: 60,
@@ -397,6 +454,48 @@ const styles = StyleSheet.create({
   mealItemPrice: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  mealItemActions: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cartButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  removeButton: {
+    backgroundColor: 'transparent',
+  },
+  addButton: {
+    borderWidth: 0,
+  },
+  quantityDisplay: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quantityText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  addToCartButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   noMenuContainer: {
     alignItems: 'center',

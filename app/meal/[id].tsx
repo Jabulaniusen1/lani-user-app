@@ -1,408 +1,420 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-  StatusBar,
   View,
   Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  SafeAreaView,
+  StatusBar,
   ActivityIndicator,
+  Pressable,
+  Dimensions,
   Alert,
-} from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+} from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useCart } from '@/components/CartContext';
+import FirestoreService, { Meal } from '@/services/firestoreService';
 
-import StyledText from "@/components/StyledText";
-import { useCart } from "@/components/CartContext";
-import Colors from "@/constants/Colors";
-import { useData } from "@/contexts/DataContext";
-import { Meal } from "@/redux/lani_eats";
-import { useSession } from "@/auth/ctx";
-import LoadingButton from "@/components/LoadingButton";
-
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 export default function MealDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { addItem } = useCart();
-  const { session } = useSession();
-  const { fetchMealById } = useData();
-  
+  const { colors, isDark } = useTheme();
+  const { state, addItem, removeItem } = useCart();
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    loadMealData();
+    fetchMealData();
   }, [id]);
 
-  const loadMealData = async () => {
+  const fetchMealData = async () => {
     if (!id) return;
     
+    console.log(`🍽️ [MealDetail] Fetching meal data for ID: ${id}`);
     setLoading(true);
     setError(null);
-    
+
     try {
-      const mealData = await fetchMealById(id);
+      console.log('🍽️ [MealDetail] Fetching meal details...');
+      const mealData = await FirestoreService.getMealById(id);
       
       if (mealData) {
+        console.log('🍽️ [MealDetail] Meal data received:', mealData);
+        console.log('🍽️ [MealDetail] Meal image URL:', mealData.image);
+        console.log('🍽️ [MealDetail] Meal price:', mealData.price);
         setMeal(mealData);
       } else {
-        setError("Meal not found");
+        console.log('🍽️ [MealDetail] Meal not found');
+        setError('Meal not found');
       }
+
     } catch (err) {
-      setError("Failed to load meal data");
-      console.error("Error loading meal data:", err);
+      console.error('🍽️ [MealDetail] Error fetching meal data:', err);
+      setError('Failed to load meal details');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!meal) return;
     
-    if (!session) {
-      Alert.alert(
-        "Login Required",
-        "Please login to add items to your cart and place orders.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { 
-            text: "Login", 
-            onPress: () => router.push("/auth/LoginForm") 
-          },
-          { 
-            text: "Sign Up", 
-            onPress: () => router.push("/auth/RegistrationForm") 
-          }
-        ]
-      );
-      return;
-    }
+    console.log('🛒 [MealDetail] Adding to cart:', meal.name);
+    addItem({
+      id: meal.id,
+      name: meal.name,
+      price: `₦${meal.price.toLocaleString()}`,
+      image: meal.image,
+      restaurant: meal.restaurantName || 'Unknown Restaurant',
+      quantity: 1
+    });
     
-    setIsAddingToCart(true);
-    // Simulate a brief loading state for better UX
-    setTimeout(() => {
-      addItem({
-        id: meal.id,
-        name: meal.name,
-        price: `₦${meal.price.toLocaleString()}`,
-        image: { uri: meal.image },
-        restaurant: meal.restaurantName,
-        quantity: quantity,
-      });
-      setIsAddingToCart(false);
-      Alert.alert("Success", "Item added to cart!");
-    }, 500);
+    Alert.alert('Added to Cart', `${meal.name} has been added to your cart!`);
   };
 
-  const handleOrderNow = () => {
-    if (!session) {
-      Alert.alert(
-        "Login Required",
-        "Please login to place orders.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { 
-            text: "Login", 
-            onPress: () => router.push("/auth/LoginForm") 
-          },
-          { 
-            text: "Sign Up", 
-            onPress: () => router.push("/auth/RegistrationForm") 
-          }
-        ]
-      );
-      return;
-    }
+  const handleRemoveFromCart = () => {
+    if (!meal) return;
     
-    // Add to cart and navigate to checkout
-    handleAddToCart();
-    setTimeout(() => {
-      router.push("/(protected)/checkout");
-    }, 600);
+    console.log('🛒 [MealDetail] Removing from cart:', meal.name);
+    removeItem(meal.id);
+    
+    Alert.alert('Removed from Cart', `${meal.name} has been removed from your cart!`);
+  };
+
+  const getQuantityInCart = () => {
+    if (!meal) return 0;
+    const cartItem = state.items.find(cartItem => cartItem.id === meal.id);
+    return cartItem?.quantity || 0;
   };
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <StatusBar backgroundColor={Colors.myDefinedColors.background} />
-        <ActivityIndicator size="large" color="#FF6B35" />
-        <Text style={styles.loadingText}>Loading meal details...</Text>
-      </View>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar backgroundColor={colors.background} barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.text }]}>Loading meal...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (error || !meal) {
     return (
-      <View style={styles.errorContainer}>
-        <StatusBar backgroundColor={Colors.myDefinedColors.background} />
-        <Ionicons name="alert-circle" size={64} color="#FF6B35" />
-        <Text style={styles.errorText}>{error || "Meal not found"}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadMealData}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar backgroundColor={colors.background} barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={64} color={colors.textSecondary} />
+          <Text style={[styles.errorText, { color: colors.text }]}>{error || 'Meal not found'}</Text>
+          <Pressable
+            style={[styles.backButton, { backgroundColor: colors.primary }]}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: colors.buttonText }]}>Go Back</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
     );
   }
 
+  const quantityInCart = getQuantityInCart();
+
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor={Colors.myDefinedColors.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar backgroundColor={colors.background} barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{meal.name}</Text>
-        <View style={styles.placeholder} />
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </Pressable>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Meal Details</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Meal Image */}
         <View style={styles.imageContainer}>
-          <Image source={{ uri: meal.image }} style={styles.mealImage} />
+          <Image 
+            source={{ uri: meal.image }} 
+            style={styles.mealImage}
+            resizeMode="cover"
+          />
         </View>
 
         {/* Meal Info */}
-        <View style={styles.mealInfo}>
-          <Text style={styles.mealName}>{meal.name}</Text>
-          <Text style={styles.restaurantName}>{meal.restaurantName}</Text>
-          <Text style={styles.mealDescription}>{meal.description}</Text>
+        <View style={[styles.mealInfo, { backgroundColor: colors.card }]}>
+          <Text style={[styles.mealName, { color: colors.text }]}>{meal.name}</Text>
           
-          <View style={styles.mealStats}>
-            <View style={styles.statItem}>
-              <Ionicons name="time" size={16} color="#4CAF50" />
-              <Text style={styles.statText}>{meal.preparationTime} min</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Ionicons name="star" size={16} color="#FFD700" />
-              <Text style={styles.statText}>{meal.rating || 4.5}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Ionicons name="restaurant" size={16} color="#FF6B35" />
-              <Text style={styles.statText}>{meal.category}</Text>
-            </View>
+          {/* Price */}
+          <Text style={[styles.mealPrice, { color: colors.price }]}>
+            ₦{meal.price.toLocaleString()}
+          </Text>
+
+          {/* Category */}
+          <View style={styles.categoryContainer}>
+            <Ionicons name="restaurant" size={20} color={colors.primary} />
+            <Text style={[styles.categoryText, { color: colors.textSecondary }]}>
+              {meal.category}
+            </Text>
           </View>
 
-          <Text style={styles.price}>₦{meal.price.toLocaleString()}</Text>
-        </View>
+          {/* Preparation Time */}
+          <View style={styles.prepTimeContainer}>
+            <Ionicons name="time" size={20} color={colors.primary} />
+            <Text style={[styles.prepTimeText, { color: colors.textSecondary }]}>
+              {meal.prepTime || meal.preparationTime} minutes
+            </Text>
+          </View>
 
-        {/* Quantity Selector */}
-        <View style={styles.quantitySection}>
-          <Text style={styles.quantityLabel}>Quantity</Text>
-          <View style={styles.quantitySelector}>
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={() => setQuantity(Math.max(1, quantity - 1))}
-            >
-              <Ionicons name="remove" size={20} color="#FF6B35" />
-            </TouchableOpacity>
-            <Text style={styles.quantityText}>{quantity}</Text>
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={() => setQuantity(quantity + 1)}
-            >
-              <Ionicons name="add" size={20} color="#FF6B35" />
-            </TouchableOpacity>
+          {/* Description */}
+          {meal.description && meal.description.trim() !== '' && (
+            <View style={styles.descriptionContainer}>
+              <Text style={[styles.descriptionTitle, { color: colors.text }]}>Description</Text>
+              <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>
+                {meal.description}
+              </Text>
+            </View>
+          )}
+
+          {/* Availability */}
+          <View style={styles.availabilityContainer}>
+            <View style={[
+              styles.availabilityIndicator, 
+              { backgroundColor: meal.available ? '#4CAF50' : '#F44336' }
+            ]} />
+            <Text style={[styles.availabilityText, { color: colors.text }]}>
+              {meal.available ? 'Available' : 'Not Available'}
+            </Text>
           </View>
         </View>
 
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <LoadingButton
-            title="Add to Cart"
-            onPress={handleAddToCart}
-            loading={isAddingToCart}
-            variant="secondary"
-            style={styles.addToCartButton}
-          />
-          <LoadingButton
-            title="Order Now"
-            onPress={handleOrderNow}
-            loading={isAddingToCart}
-            style={styles.orderNowButton}
-          />
+        {/* Cart Actions */}
+        <View style={styles.cartSection}>
+          {quantityInCart > 0 ? (
+            <View style={styles.cartControls}>
+              <Pressable
+                style={[styles.cartButton, styles.removeButton, { borderColor: colors.primary }]}
+                onPress={handleRemoveFromCart}
+              >
+                <Ionicons name="remove" size={20} color={colors.primary} />
+                <Text style={[styles.cartButtonText, { color: colors.primary }]}>Remove</Text>
+              </Pressable>
+              
+              <View style={[styles.quantityDisplay, { backgroundColor: colors.primary }]}>
+                <Text style={[styles.quantityText, { color: colors.buttonText }]}>
+                  {quantityInCart}
+                </Text>
+              </View>
+              
+              <Pressable
+                style={[styles.cartButton, styles.addButton, { backgroundColor: colors.primary }]}
+                onPress={handleAddToCart}
+              >
+                <Ionicons name="add" size={20} color={colors.buttonText} />
+                <Text style={[styles.cartButtonText, { color: colors.buttonText }]}>Add</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              style={[styles.addToCartButton, { backgroundColor: colors.primary }]}
+              onPress={handleAddToCart}
+              disabled={!meal.available}
+            >
+              <Ionicons name="cart" size={24} color={colors.buttonText} />
+              <Text style={[styles.addToCartText, { color: colors.buttonText }]}>
+                Add to Cart
+              </Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.myDefinedColors.background,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.myDefinedColors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#666",
+    color: '#666',
   },
   errorContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.myDefinedColors.background,
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
   },
   errorText: {
     fontSize: 18,
-    color: "#666",
-    textAlign: "center",
-    marginVertical: 16,
-  },
-  retryButton: {
-    backgroundColor: "#FF6B35",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 24,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: "transparent",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "transparent",
-    alignItems: "center",
-    justifyContent: "center",
+    padding: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1A1A1A",
     flex: 1,
-    textAlign: "center",
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
   },
-  placeholder: {
-    width: 36,
+  headerSpacer: {
+    width: 40,
   },
   imageContainer: {
-    height: 250,
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 16,
-    marginBottom: 20,
-    borderRadius: 12,
-    overflow: "hidden",
+    height: 300,
   },
   mealImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    width: '100%',
+    height: '100%',
   },
   mealInfo: {
-    backgroundColor: "#FFFFFF",
+    marginTop: -20,
     marginHorizontal: 16,
-    marginBottom: 20,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   mealName: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#1A1A1A",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
-  restaurantName: {
+  mealPrice: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  categoryText: {
     fontSize: 16,
-    color: "#666",
-    marginBottom: 12,
+    marginLeft: 8,
   },
-  mealDescription: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
+  prepTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  mealStats: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  prepTimeText: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  descriptionContainer: {
     marginBottom: 16,
   },
-  statItem: {
-    flexDirection: "row",
-    alignItems: "center",
+  descriptionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
   },
-  statText: {
-    fontSize: 14,
-    color: "#1A1A1A",
+  descriptionText: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  availabilityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  availabilityIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  availabilityText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  cartSection: {
+    padding: 16,
+  },
+  cartControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  cartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  removeButton: {
+    backgroundColor: 'transparent',
+  },
+  addButton: {
+    borderWidth: 0,
+  },
+  cartButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
     marginLeft: 4,
   },
-  price: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#4CAF50",
-    textAlign: "center",
-  },
-  quantitySection: {
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 16,
-    marginBottom: 20,
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  quantityLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1A1A1A",
-  },
-  quantitySelector: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#F5F5F5",
-    alignItems: "center",
-    justifyContent: "center",
+  quantityDisplay: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   quantityText: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#1A1A1A",
-    marginHorizontal: 16,
-    minWidth: 30,
-    textAlign: "center",
-  },
-  actionButtons: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-    gap: 12,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   addToCartButton: {
-    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
   },
-  orderNowButton: {
-    flex: 1,
+  addToCartText: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

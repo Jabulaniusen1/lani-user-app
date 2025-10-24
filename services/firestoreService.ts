@@ -34,14 +34,17 @@ export interface Restaurant {
 export interface Meal {
   id: string;
   name: string;
-  description: string;
+  description: string; // Can be empty string from database
   price: number;
   image: string;
   restaurantId: string;
   restaurantName?: string; // Optional since it might not be in the database
   category: string;
-  available: boolean; // Changed from isAvailable to available
-  prepTime: number; // Changed from preparationTime to prepTime
+  available: boolean; // Database field name
+  prepTime: number; // Database field name
+  // Interface compatibility fields
+  isAvailable?: boolean; // For backward compatibility
+  preparationTime?: number; // For backward compatibility
   rating?: number;
   reviews?: number;
   userId?: string; // Added since it exists in your database
@@ -70,15 +73,49 @@ class FirestoreService {
   // Helper function to map database fields to interface
   private mapMealData(doc: any): Meal {
     const data = doc.data();
-    return {
+    
+    // Debug logging to see what's actually in the database
+    console.log(`🍽️ [FirestoreService] Raw meal data for ${doc.id}:`, {
+      name: data.name,
+      price: data.price,
+      image: data.image,
+      available: data.available,
+      prepTime: data.prepTime,
+      category: data.category,
+      description: data.description,
+      restaurantId: data.restaurantId,
+      userId: data.userId,
+      createdAt: data.createdAt,
+      allFields: Object.keys(data)
+    });
+    
+    const mappedMeal = {
       id: doc.id,
+      // Spread all data from database first
       ...data,
+      // Ensure description is handled properly (can be empty string)
+      description: data.description || '',
       // Map field names to match interface
       isAvailable: data.available,
       preparationTime: data.prepTime,
       // Add restaurant name if not present
       restaurantName: data.restaurantName || 'Unknown Restaurant'
     } as Meal;
+    
+    console.log(`🍽️ [FirestoreService] Mapped meal data:`, {
+      name: mappedMeal.name,
+      price: mappedMeal.price,
+      image: mappedMeal.image,
+      description: mappedMeal.description,
+      available: mappedMeal.available,
+      prepTime: mappedMeal.prepTime,
+      category: mappedMeal.category,
+      restaurantId: mappedMeal.restaurantId,
+      isAvailable: mappedMeal.isAvailable,
+      preparationTime: mappedMeal.preparationTime
+    });
+    
+    return mappedMeal;
   }
 
   // Helper function to map restaurant database fields to interface
@@ -249,12 +286,15 @@ class FirestoreService {
   }
 
   async getMealById(id: string): Promise<Meal | null> {
-    console.log(`🔥 [FirestoreService] Starting to fetch meal by ID using collection group query: ${id}`);
+    console.log(`🔥 [FirestoreService] Starting to fetch meal by ID: ${id}`);
     try {
-      console.log('🔥 [FirestoreService] Building collection group query for specific meal...');
+      console.log('🔥 [FirestoreService] Using collection group query to find meal...');
+      
+      // Since we can't use documentId() with collection groups directly,
+      // we'll query all menus and filter by ID
       const q = query(
         collectionGroup(db, 'menus'),
-        where('__name__', '==', id) // This is a workaround to find by document ID in collection group
+        where('available', '==', true)
       );
       
       console.log('🔥 [FirestoreService] Executing collection group query...');
@@ -262,8 +302,11 @@ class FirestoreService {
       
       console.log(`🔥 [FirestoreService] Collection group query completed. Found ${snapshot.docs.length} meals`);
       
-      if (snapshot.docs.length > 0) {
-        const mealData = this.mapMealData(snapshot.docs[0]);
+      // Find the specific meal by ID
+      const mealDoc = snapshot.docs.find(doc => doc.id === id);
+      
+      if (mealDoc) {
+        const mealData = this.mapMealData(mealDoc);
         console.log('🔥 [FirestoreService] Meal data:', mealData);
         return mealData;
       }

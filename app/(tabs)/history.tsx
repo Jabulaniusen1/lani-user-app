@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { View } from "@/components/Themed";
 import StyledText from "@/components/StyledText";
@@ -118,7 +119,8 @@ export default function HistoryScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={Colors.myDefinedColors.background} barStyle="dark-content" />
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
@@ -147,7 +149,7 @@ export default function HistoryScreen() {
         contentContainerStyle={styles.orderList}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -155,7 +157,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.myDefinedColors.background,
-    marginTop: StatusBar.currentHeight,
   },
   searchContainer: {
     backgroundColor: Colors.myDefinedColors.historyScreenTopBackground,

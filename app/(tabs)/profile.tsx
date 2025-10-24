@@ -21,8 +21,24 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ProfileScreen() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { session, logout } = useSession();
+  const { session, user, logout } = useSession();
   const { colors, isDark, themeMode, setThemeMode, toggleTheme } = useTheme();
+  
+  // Check if user is logged in (session is a token string, not null/undefined)
+  const isLoggedIn = session && session.length > 0;
+  
+  // Debug logging
+  console.log('🔐 [ProfileScreen] Session state:', {
+    session: session ? 'Token present' : 'No token',
+    sessionLength: session?.length || 0,
+    isLoggedIn,
+    user: user ? {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL
+    } : 'No user'
+  });
 
   function logoutHandler() {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -50,7 +66,7 @@ export default function ProfileScreen() {
     router.push("/auth/RegistrationForm");
   }
 
-  const profileMenuItems = session ? [
+  const profileMenuItems = isLoggedIn ? [
     {
       id: "1",
       title: "Dark mode",
@@ -248,17 +264,22 @@ export default function ProfileScreen() {
       <SafeAreaView>
         {/* Profile Section */}
         <View style={[styles.profileSection, { backgroundColor: colors.background }]}>
-          {session ? (
+          {isLoggedIn ? (
             <>
               <Image
                 source={{
-                  uri: "https://avatar.iran.liara.run/public/girl?username=Annie",
+                  uri: user?.photoURL || `https://avatar.iran.liara.run/public/boy?username=${user?.email?.split('@')[0] || 'User'}`,
                 }}
                 style={styles.profileImage}
               />
               <StyledText variant="title" weight="bold" style={[styles.profileName, { color: colors.text }]}>
-                Annie Davies
+                {user?.displayName || user?.email?.split('@')[0] || 'User'}
               </StyledText>
+              {user?.email && (
+                <StyledText variant="body" style={[styles.userEmail, { color: colors.textSecondary }]}>
+                  {user.email}
+                </StyledText>
+              )}
               <TouchableOpacity style={styles.editProfileButton}>
                 <StyledText
                   variant="body"
@@ -353,6 +374,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FF6B35",
     fontWeight: "500",
+  },
+  userEmail: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+    textAlign: "center",
   },
   menuSection: {
     backgroundColor: Colors.myDefinedColors.white,

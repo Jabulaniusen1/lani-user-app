@@ -1,4 +1,4 @@
-import { use, createContext, type PropsWithChildren, useEffect } from "react";
+import { use, createContext, type PropsWithChildren, useEffect, useState } from "react";
 import { useStorageState } from "./useStorageState";
 import { auth } from "./firebase";
 import {
@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  User,
 } from "firebase/auth";
 import { useNotification } from "@/components/NotificationContext";
 import { router } from "expo-router";
@@ -15,12 +16,14 @@ const AuthContext = createContext<{
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   session?: string | null;
+  user?: User | null;
   isLoading: boolean;
 }>({
   register: async () => {},
   login: async () => {},
   logout: async () => {},
   session: null,
+  user: null,
   isLoading: false,
 });
 
@@ -41,6 +44,7 @@ export function useSession() {
 
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
+  const [user, setUser] = useState<User | null>(null);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -48,8 +52,17 @@ export function SessionProvider({ children }: PropsWithChildren) {
       if (user) {
         const token = await user.getIdToken();
         setSession(token);
+        setUser(user);
+        console.log('🔐 [AuthContext] User logged in:', {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL
+        });
       } else {
         setSession(null);
+        setUser(null);
+        console.log('🔐 [AuthContext] User logged out');
       }
     });
     return unsubscribe;
@@ -120,6 +133,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
           }
         },
         session,
+        user,
         isLoading,
       }}
     >

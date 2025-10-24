@@ -4,7 +4,6 @@ import {
   ScrollView,
   Image,
   FlatList,
-  SafeAreaView,
   StatusBar,
   Platform,
   View,
@@ -15,6 +14,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -117,9 +117,6 @@ export default function HomeScreen() {
     loadingMeals,
     hasSession: !!session
   });
-  const scrollViewRef = React.useRef<FlatList>(null);
-  const [currentRestaurantIndex, setCurrentRestaurantIndex] =
-    useState<number>(0);
   const [image, setImage] = useState<string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
 
@@ -141,32 +138,6 @@ export default function HomeScreen() {
   };
   //===========ENDS HERE=================//
 
-  //======HANDLES BACK BUTTON ON POPULAR RESTURANT======//
-  const handlePreviousRestaurants = () => {
-    if (currentRestaurantIndex > 0) {
-      const newIndex = currentRestaurantIndex - 1;
-      setCurrentRestaurantIndex(newIndex);
-      // Scroll to the previous set of restaurants
-      scrollViewRef.current?.scrollToOffset({
-        offset: newIndex * 160,
-        animated: true,
-      });
-    }
-  };
-  //===========ENDS HERE=================//
-
-  const handleNextRestaurants = () => {
-    const maxIndex = Math.max(0, popularRestaurants.length - 2); // Show 2 restaurants at a time
-    if (currentRestaurantIndex < maxIndex) {
-      const newIndex = currentRestaurantIndex + 1;
-      setCurrentRestaurantIndex(newIndex);
-      // Scroll to the next set of restaurants
-      scrollViewRef.current?.scrollToOffset({
-        offset: newIndex * 160,
-        animated: true,
-      });
-    }
-  };
 
   //=======FLATLIST RENDERS THE POPULAR RESTURANT SECTION==========//
   function renderRestaurantCard({ item }: { item: Restaurant }) {
@@ -289,9 +260,9 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar backgroundColor={colors.background} barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <SafeAreaView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headerSection}>
           <View style={styles.welcomeSection}>
             <Text style={[styles.welcomeText, { color: colors.text }]}>
@@ -386,48 +357,6 @@ export default function HomeScreen() {
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular Restaurants</Text>
-            <View style={styles.navigationArrows}>
-              <Pressable
-                style={[
-                  styles.arrowButton,
-                  { backgroundColor: colors.card },
-                  currentRestaurantIndex === 0 && styles.arrowButtonDisabled,
-                ]}
-                onPress={handlePreviousRestaurants}
-                disabled={currentRestaurantIndex === 0}
-              >
-                <Ionicons
-                  name="chevron-back"
-                  size={20}
-                  color={currentRestaurantIndex === 0 ? colors.textTertiary : colors.text}
-                />
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.arrowButton,
-                  { backgroundColor: colors.card },
-                  currentRestaurantIndex >=
-                    Math.max(0, popularRestaurants.length - 2) &&
-                    styles.arrowButtonDisabled,
-                ]}
-                onPress={handleNextRestaurants}
-                disabled={
-                  currentRestaurantIndex >=
-                  Math.max(0, popularRestaurants.length - 2)
-                }
-              >
-                <Ionicons
-                  name="chevron-forward"
-                  size={20}
-                  color={
-                    currentRestaurantIndex >=
-                    Math.max(0, popularRestaurants.length - 2)
-                      ? colors.textTertiary
-                      : colors.text
-                  }
-                />
-              </Pressable>
-            </View>
           </View>
           <View
             style={{
@@ -436,14 +365,16 @@ export default function HomeScreen() {
             }}
           >
             <FlatList
-              ref={scrollViewRef}
               data={popularRestaurants as any[]}
               renderItem={renderRestaurantCard}
               keyExtractor={(item) => item.id}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.restaurantsList}
-              scrollEnabled={false}
+              scrollEnabled={true}
+              decelerationRate="fast"
+              snapToInterval={172} // Card width (160) + margin (12)
+              snapToAlignment="start"
             />
           </View>
         </View>
@@ -459,8 +390,8 @@ export default function HomeScreen() {
             showsVerticalScrollIndicator={false}
           />
         </View>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -478,7 +409,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
-    marginTop: StatusBar.currentHeight,
   },
   headerSection: {
     flexDirection: "row",
@@ -600,50 +530,37 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1A1A1A",
   },
-  navigationArrows: {
-    flexDirection: "row",
-    gap: 8,
-    backgroundColor: "transparent",
-  },
-  arrowButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#ffffff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  arrowButtonDisabled: {
-    opacity: 0.5,
-  },
   restaurantsList: {
     paddingHorizontal: 16,
   },
   restaurantCard: {
     width: 160,
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 16,
+    padding: 16,
     marginRight: 12,
     marginBottom: 5,
-    ...shadow,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
   restaurantImage: {
     width: "100%",
-    height: 80,
-    borderRadius: 8,
-    marginBottom: 8,
+    height: 90,
+    borderRadius: 12,
+    marginBottom: 12,
     resizeMode: "cover",
   },
   restaurantName: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
     color: "#1A1A1A",
-    marginBottom: 4,
+    marginBottom: 6,
+    lineHeight: 20,
   },
   restaurantLocation: {
-    fontSize: 12,
+    fontSize: 13,
     color: "#666",
+    lineHeight: 18,
   },
   mealCard: {
     flexDirection: "row",
